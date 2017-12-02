@@ -1,0 +1,182 @@
+<?php
+
+namespace Alonity\Router;
+
+use Alonity\Alonity;
+use RouterException;
+
+require_once(__DIR__.'/RouterException.php');
+
+class Router extends Alonity {
+
+	private $rootDir = '';
+	private $appKey = '';
+	private $routes = [];
+
+	private $currentRoute = null;
+	private $currentKey = '404';
+	private $currentInited = false;
+
+	/**
+	 * Выставление основных настроек роутера
+	 *
+	 * @param $array array
+	 *
+	 * @return void
+	 */
+	public function SetOptions($array){
+		if(isset($array['dir_root'])){
+			$this->rootDir = $array['dir_root'];
+		}
+
+		if(isset($array['appkey'])){
+			$this->appKey = $array['appkey'];
+		}
+
+		if(isset($array['routes']) && is_array($array['routes'])){
+			$this->SetRoutes($array['routes']);
+		}
+	}
+
+	/**
+	 * Выставление маршрутов
+	 *
+	 * @param $array array
+	 *
+	 * @return void
+	*/
+	public function SetRoutes($array){
+		$this->routes = $array;
+	}
+
+	/**
+	 * Компиляция маршрутов
+	 *
+	 * @return boolean
+	*/
+	public function CompileRoutes(){
+		if(empty($this->routes)){ return false; }
+
+		$url = $_SERVER['REQUEST_URI'];
+
+		$method = $_SERVER['REQUEST_METHOD'];
+
+		foreach($this->routes as $key => $value){
+			if(!isset($value['pattern'])){ continue; }
+
+			if(isset($value['methods'])){
+				if(is_string($value['methods']) && $method!=$value['methods']){
+					continue;
+				}elseif(is_array($value['methods']) && !in_array($method, $value['methods'])){
+					continue;
+				}
+			}
+
+			$pattern = preg_quote($value['pattern'], '/');
+
+			$pattern = str_replace([
+				'\:int', '\:integer', '\:string', '\:float', '\:boolean', '\:any'
+			], [
+				'(\d+)', '(\d+)', '([\w\-]+)', '(\d+\.?\d+?)', '(true|false)', '([^/^&]+)'
+			], $pattern);
+
+			if(!preg_match("/^$pattern\/?$/i", $url, $matches)){ continue; }
+
+			if(isset($matches[0])){ unset($matches[0]); }
+
+			$this->currentRoute = $value;
+
+			$this->currentKey = $key;
+
+			break;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Получение найденного ключа маршрута
+	 *
+	 * @return string
+	*/
+	public function getCurrentKey(){
+		return $this->currentKey;
+	}
+
+	/**
+	 * Получение найденного маршрута с параметрами
+	 *
+	 * @return array
+	 */
+	public function getCurrentRoute(){
+
+		if($this->currentInited){ return $this->currentRoute; }
+
+		$this->currentInited = true;
+
+		if($this->currentKey=='404'){
+			if(isset($this->routes['404'])){
+				$this->currentRoute = $this->routes['404'];
+			}else{
+				return $this->currentRoute;
+			}
+		}
+
+		if(!isset($this->currentRoute['action'])){
+			$this->currentRoute['action'] = 'index';
+		}
+
+		$this->currentRoute['key'] = $this->currentKey;
+		if(isset($this->currentRoute['parent'])){
+			$this->currentRoute['baseClass'] = ucfirst(mb_strtolower($this->currentRoute['parent']));
+		}else{
+			$this->currentRoute['baseClass'] = ucfirst(mb_strtolower($this->currentKey));
+		}
+
+		$this->currentRoute['modelClass'] = "{$this->currentRoute['baseClass']}Model";
+		$this->currentRoute['viewClass'] = "{$this->currentRoute['baseClass']}View";
+		$this->currentRoute['controllerClass'] = "{$this->currentRoute['baseClass']}Controller";
+		$this->currentRoute['actionMethod'] = "{$this->currentRoute['action']}Action";
+
+		return $this->currentRoute;
+	}
+
+	/**
+	 * Получение маршрутов
+	 *
+	 * @return array
+	 */
+	public function getRoutes(){
+		return $this->routes;
+	}
+
+	/**
+	 * Получение маршрута-потомка
+	 *
+	 * @param $key string
+	 *
+	 * @throws RouterException
+	 *
+	 * @return array | null
+	*/
+	public function getRouteByKey($key){
+
+		if(!isset($this->routes[$key])){ return null; }
+
+		$route = $this->routes[$key];
+
+		if(empty($route)){ return null; }
+
+		if(!isset($route['action']) ||
+			!isset($route['methods']) ||
+			!isset($route['view'])){
+
+			throw new RouterException('Not exists key "file" in "'.$key.'" route');
+
+		}
+
+		return $route;
+	}
+}
+
+?>
