@@ -12,6 +12,7 @@ use Alonity\Controller\Controller as Controller;
 class Alonity {
 
 	// Версия ядра
+	const VERSION = '0.1.0';
 
 	// Объект загруженного приложения
 	private $App = null;
@@ -31,12 +32,12 @@ class Alonity {
 	private $AppAuthor = 'Alonity';
 
 	// Модули
-	private $AppModules = [];
+	private $AppComponents = [];
 
 	// Маршруты
 	private $AppRoutes = [];
 
-	private $Modules = null;
+	private $Components = null;
 
 	private $rootDir = null;
 
@@ -214,7 +215,7 @@ class Alonity {
 			$this->AppAuthor = $app['author'];
 		}
 
-		$this->AppModules = $app['modules'];
+		$this->AppComponents = $app['components'];
 
 		if(isset($app['routes'])){
 			if(!is_array($app['routes'])){
@@ -256,7 +257,7 @@ class Alonity {
 		$this->AppKey = $name;
 	}
 
-	private function getModulesRecursive($path){
+	private function getComponentsRecursive($path){
 
 		foreach(scandir($path) as $file){
 			if($file=='.' || $file=='..'){ continue; }
@@ -272,20 +273,20 @@ class Alonity {
 	}
 
 	/**
-	 * Загрузка модулей
+	 * Загрузка компонентов
 	 *
 	 * @throws \AlonityException
 	 *
 	 * @return void
 	*/
-	private function getModules(){
-		if(empty($this->Modules)){ return; }
+	private function getComponents(){
+		if(empty($this->Components)){ return; }
 
-		$modules = (is_array($this->Modules)) ? $this->Modules : [$this->Modules];
+		$components = (is_array($this->Components)) ? $this->Components : [$this->Components];
 
-		foreach($modules as $value){
+		foreach($components as $value){
 			if(basename($value)=='*'){
-				$this->getModulesRecursive($this->getRoot().mb_substr($value, 0, -1, 'UTF-8'));
+				$this->getComponentsRecursive($this->getRoot().mb_substr($value, 0, -1, 'UTF-8'));
 			}else{
 				require_once($this->getRoot().$value);
 			}
@@ -309,7 +310,7 @@ class Alonity {
 		$this->PrepareApp($name);
 
 		// Загрузка модулей
-		$this->getModules();
+		$this->getComponents();
 
 		// Настройка роутера
 		$this->Router()->SetOptions([

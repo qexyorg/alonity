@@ -14,7 +14,7 @@ class Router extends Alonity {
 	private $routes = [];
 
 	private $currentRoute = null;
-	private $currentKey = '404';
+	private $currentKey = 'notfound';
 	private $currentInited = false;
 
 	/**
@@ -114,9 +114,9 @@ class Router extends Alonity {
 
 		$this->currentInited = true;
 
-		if($this->currentKey=='404'){
-			if(isset($this->routes['404'])){
-				$this->currentRoute = $this->routes['404'];
+		if($this->currentKey=='notfound'){
+			if(isset($this->routes[$this->currentKey])){
+				$this->currentRoute = $this->routes[$this->currentKey];
 			}else{
 				return $this->currentRoute;
 			}
@@ -166,14 +166,6 @@ class Router extends Alonity {
 		$route = $this->routes[$key];
 
 		if(empty($route)){ return null; }
-
-		if(!isset($route['action']) ||
-			!isset($route['methods']) ||
-			!isset($route['view'])){
-
-			throw new RouterException('Not exists key "file" in "'.$key.'" route');
-
-		}
 
 		return $route;
 	}
