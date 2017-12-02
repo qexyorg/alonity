@@ -12,7 +12,6 @@ use Alonity\Controller\Controller as Controller;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.0.1';
 
 	// Объект загруженного приложения
 	private $App = null;
@@ -157,6 +156,7 @@ class Alonity {
 		return $this->controller;
 	}
 
+	/** Возвращает директорию корня сайта */
 	public function getRoot(){
 		if(!is_null($this->rootDir)){ return $this->rootDir; }
 
@@ -256,6 +256,21 @@ class Alonity {
 		$this->AppKey = $name;
 	}
 
+	private function getModulesRecursive($path){
+
+		foreach(scandir($path) as $file){
+			if($file=='.' || $file=='..'){ continue; }
+
+			$filename = $path.$file;
+
+			if(is_file($filename)){
+				require_once($filename);
+			}else{
+				$this->getModulesRecursive($filename);
+			}
+		}
+	}
+
 	/**
 	 * Загрузка модулей
 	 *
@@ -263,70 +278,18 @@ class Alonity {
 	 *
 	 * @return void
 	*/
-	private function GetModules(){
-		if(empty($this->Modules)){
-			return;
-		}
+	private function getModules(){
+		if(empty($this->Modules)){ return; }
 
-		$root = dirname(__DIR__);
+		$modules = (is_array($this->Modules)) ? $this->Modules : [$this->Modules];
 
-		foreach($this->Modules as $module){
-			$filename = $root.'/'.$module.'.php';
-
-			if(basename($module)=='*'){
-				$dir = mb_substr($root.'/'.$module, 0, -1, 'UTF-8');
-
-				foreach(scandir($dir) as $file){
-					if($file=='.' || $file=='..'){ continue; }
-
-					require_once($dir.$file);
-				}
+		foreach($modules as $value){
+			if(basename($value)=='*'){
+				$this->getModulesRecursive($this->getRoot().mb_substr($value, 0, -1, 'UTF-8'));
 			}else{
-				if(!file_exists($filename)){
-					throw new \AlonityException('Module '.$module.' not exists');
-				}
-
-				require_once($filename);
+				require_once($this->getRoot().$value);
 			}
-
 		}
-	}
-
-	/**
-	 * Подготовка модулей
-	 *
-	 * @throws \AlonityException
-	 *
-	 * @return void
-	 */
-	private function PrepareModules(){
-
-		if(is_array($this->AppModules)){
-			$this->Modules = $this->AppModules;
-
-			return;
-		}
-
-		if(is_string($this->AppModules)){
-
-			$filename = dirname(__DIR__).$this->AppModules.'.php';
-
-			if(!file_exists($filename)){
-				throw new \AlonityException('Modules file '.$this->AppModules.' not found');
-			}
-
-			$modules = (require_once($filename));
-
-			if(!is_array($modules)){
-				throw new \AlonityException('Modules must be array');
-			}
-
-			$this->Modules = $modules;
-
-			return;
-		}
-
-		throw new \AlonityException('');
 	}
 
 	/**
@@ -345,11 +308,8 @@ class Alonity {
 		// Подготовка приложения
 		$this->PrepareApp($name);
 
-		// Подготовка модулей
-		$this->PrepareModules();
-
 		// Загрузка модулей
-		$this->GetModules();
+		$this->getModules();
 
 		// Настройка роутера
 		$this->Router()->SetOptions([
@@ -376,8 +336,6 @@ class Alonity {
 		$this->getController = $this->Controller()->getCurrent();
 
 		$this->Controller()->callToAction();
-
-
 	}
 }
 
