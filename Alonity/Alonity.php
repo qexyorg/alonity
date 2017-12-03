@@ -94,7 +94,7 @@ class Alonity {
 	}
 
 	/**
-	 * Возвращает экземпляр сласса Router
+	 * Возвращает экземпляр класса Router
 	 *
 	 * @return \Alonity\Router\Router()
 	 */
@@ -110,7 +110,7 @@ class Alonity {
 	}
 
 	/**
-	 * Возвращает экземпляр сласса Model
+	 * Возвращает экземпляр класса Model
 	 *
 	 * @return \Alonity\Model\Model()
 	 */
@@ -126,7 +126,7 @@ class Alonity {
 	}
 
 	/**
-	 * Возвращает экземпляр сласса View
+	 * Возвращает экземпляр класса View
 	 *
 	 * @return \Alonity\View\View()
 	 */
@@ -142,7 +142,7 @@ class Alonity {
 	}
 
 	/**
-	 * Возвращает экземпляр сласса Controller
+	 * Возвращает экземпляр класса Controller
 	 *
 	 * @return \Alonity\Controller\Controller()
 	 */
