@@ -1,4 +1,15 @@
 <?php
+/**
+ * Alonity Framework
+ *
+ * @author Qexy <admin@qexy.org>
+ * @copyright Copyright (c) 2017, Qexy
+ * @link http://qexy.org
+ *
+ * @license https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * @version 0.1.0
+ */
 
 namespace Alonity;
 
@@ -262,12 +273,12 @@ class Alonity {
 		foreach(scandir($path) as $file){
 			if($file=='.' || $file=='..'){ continue; }
 
-			$filename = $path.$file;
+			$filename = $path.'/'.$file;
 
 			if(is_file($filename)){
 				require_once($filename);
 			}else{
-				$this->getModulesRecursive($filename);
+				$this->getComponentsRecursive($filename);
 			}
 		}
 	}
@@ -280,9 +291,9 @@ class Alonity {
 	 * @return void
 	*/
 	private function getComponents(){
-		if(empty($this->Components)){ return; }
+		if(empty($this->AppComponents)){ return; }
 
-		$components = (is_array($this->Components)) ? $this->Components : [$this->Components];
+		$components = (is_array($this->AppComponents)) ? $this->AppComponents : [$this->AppComponents];
 
 		foreach($components as $value){
 			if(basename($value)=='*'){
