@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 0.1.0
+ * @version 0.2.0
  */
 
 namespace Alonity;
@@ -23,7 +23,7 @@ use Alonity\Controller\Controller as Controller;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.1.0';
+	const VERSION = '0.2.0';
 
 	// Объект загруженного приложения
 	private $App = null;
