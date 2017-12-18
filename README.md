@@ -11,9 +11,6 @@ Alonity - это простой PHP фреймворк для быстрого �
 * **Components/Database/MySQL**
 * **Components/Database/MySQLi**
 * **Components/Database/PostgreSQL**
-* Components/Database/Redis
-* Components/Database/Memcache
-* Components/Database/MongoDB
 * Components/Filters/Array
 * Components/Filters/String
 * Components/Filters/File
