@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 0.2.0
+ * @version 0.2.1
  */
 
 namespace Alonity;
