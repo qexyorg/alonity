@@ -8,22 +8,22 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 0.2.1
+ * @version 0.1.0
  */
 
 namespace Alonity;
 
 require_once(__DIR__.'/AlonityException.php');
 
+use Alonity\Controller\Controller as Controller;
+use Alonity\Model\Model as Model;
 use Alonity\Router\Router as Router;
 use Alonity\View\View as View;
-use Alonity\Model\Model as Model;
-use Alonity\Controller\Controller as Controller;
 
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.2.0';
+	const VERSION = '0.2.2';
 
 	// Объект загруженного приложения
 	private $App = null;
@@ -47,8 +47,6 @@ class Alonity {
 
 	// Маршруты
 	private $AppRoutes = [];
-
-	private $Components = null;
 
 	private $rootDir = null;
 

@@ -14,7 +14,7 @@ Alonity - это простой PHP фреймворк для быстрого �
 * Components/Filters/Array
 * **Components/Filters/String**
 * Components/Filters/File
-* Components/Filters/Time
+* **Components/Filters/Date**
 * Components/Filters/Image
 * Components/Filters/BBCodes
 * Components/Filters/Input
