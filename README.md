@@ -11,10 +11,10 @@ Alonity - это простой PHP фреймворк для быстрого �
 * **Components/Database/MySQL**
 * **Components/Database/MySQLi**
 * **Components/Database/PostgreSQL**
-* Components/Filters/Array
+* **Components/Filters/Array**
 * **Components/Filters/String**
-* Components/Filters/File
 * **Components/Filters/Date**
+* Components/Filters/File
 * Components/Filters/Image
 * Components/Filters/BBCodes
 * Components/Filters/Input
