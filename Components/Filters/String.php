@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components\Filters;
@@ -260,6 +260,54 @@ class _String {
 		$right = mb_substr($input, $pos, null, 'UTF-8');
 
 		return $left.$string.$right;
+	}
+
+	/**
+	 * Фильтрует E-Mail адрес, удаляя все символы из строки, кроме a-zA-Z0-9_-.@
+	 *
+	 * @param $string string
+	 *
+	 * @return string
+	*/
+	public static function email($string){
+		$string = strval($string);
+
+		return preg_replace('/[^\w\.\-\@]+/i', '', $string);
+	}
+
+	/**
+	 * Проверяет, является ли строка E-Mail адресом
+	 *
+	 * @param $string string
+	 *
+	 * @return string
+	 */
+	public static function isEmail($string){
+
+		return (preg_match('/^[\w]+([\w\-\.]+)?\@[a-z0-9]+([a-z0-9\-\.]+)?$/i', $string)) ? true : false;
+	}
+
+	/**
+	 * Фильтрует E-Mail адрес, удаляя все символы из строки, кроме a-zA-Z0-9$-_.+!*'(),{}|\\^~[]`<>#%";/?:@&=
+	 * Так же к данному фильтру применяется функция удаления HTML тегов из строки
+	 *
+	 * @param $string string
+	 *
+	 * @return string
+	 */
+	public static function url($string){
+		return self::removeTags(filter_var($string, FILTER_SANITIZE_URL));
+	}
+
+	/**
+	 * Проверяет, является ли строка URL адресом
+	 *
+	 * @param $string string
+	 *
+	 * @return string
+	 */
+	public static function isUrl($string){
+		return (filter_var($string, FILTER_VALIDATE_URL)===false) ? false : true;
 	}
 }
 

@@ -23,7 +23,7 @@ use Alonity\View\View as View;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.2.3';
+	const VERSION = '0.2.4';
 
 	// Объект загруженного приложения
 	private $App = null;
