@@ -19,6 +19,7 @@ use Alonity\Controller\Controller as Controller;
 use Alonity\Model\Model as Model;
 use Alonity\Router\Router as Router;
 use Alonity\View\View as View;
+use Alonity\Triggers\Triggers as Triggers;
 
 class Alonity {
 
@@ -61,6 +62,9 @@ class Alonity {
 
 	/** @var \Alonity\View\View() */
 	private $view = null;
+
+	/** @var \Alonity\Triggers\Triggers() */
+	private $triggers = null;
 
 	/** @var $this->Model()->getCurrent() */
 	private $getModel = null;
@@ -126,6 +130,8 @@ class Alonity {
 	public function Model(){
 		if(!is_null($this->model)){ return $this->model; }
 
+		$this->Triggers()->call('onLoadModel');
+
 		// Загрузка модели
 		require_once(__DIR__.'/Model/Model.php');
 
@@ -141,6 +147,8 @@ class Alonity {
 	 */
 	public function View(){
 		if(!is_null($this->view)){ return $this->view; }
+
+		$this->Triggers()->call('onLoadView');
 
 		// Загрузка модели
 		require_once(__DIR__.'/View/View.php');
@@ -158,12 +166,29 @@ class Alonity {
 	public function Controller(){
 		if(!is_null($this->controller)){ return $this->controller; }
 
+		$this->Triggers()->call('onLoadController');
+
 		// Загрузка контроллера
 		require_once(__DIR__.'/Controller/Controller.php');
 
 		$this->controller = new Controller($this);
 
 		return $this->controller;
+	}
+
+	/**
+	 * Возвращает экземпляр класса Triggers
+	 *
+	 * @return \Alonity\Triggers\Triggers()
+	 */
+	public function Triggers(){
+		if(!is_null($this->triggers)){ return $this->triggers; }
+
+		require_once(__DIR__.'/Triggers/Triggers.php');
+
+		$this->triggers = new Triggers($this);
+
+		return $this->triggers;
 	}
 
 	/** Возвращает директорию корня сайта */
@@ -275,9 +300,12 @@ class Alonity {
 
 			if(is_file($filename)){
 				require_once($filename);
+
+				$this->Triggers()->call('onLoadComponent', pathinfo($filename, PATHINFO_FILENAME));
 			}else{
 				$this->getComponentsRecursive($filename);
 			}
+
 		}
 	}
 
@@ -298,6 +326,8 @@ class Alonity {
 				$this->getComponentsRecursive($this->getRoot().mb_substr($value, 0, -1, 'UTF-8'));
 			}else{
 				require_once($this->getRoot().$value);
+
+				$this->Triggers()->call('onLoadComponent', basename($value));
 			}
 		}
 	}
@@ -315,6 +345,8 @@ class Alonity {
 
 		$this->AppKey = $name;
 
+		$this->Triggers()->call('onRunApp');
+
 		// Подготовка приложения
 		$this->PrepareApp($name);
 
@@ -323,7 +355,7 @@ class Alonity {
 
 		// Настройка роутера
 		$this->Router()->SetOptions([
-			'dir_root' => dirname(__DIR__),
+			'dir_root' => $this->getRoot(),
 			'appkey' => $this->AppKey,
 			'routes' => $this->AppRoutes,
 		]);
