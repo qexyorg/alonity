@@ -24,7 +24,7 @@ use Alonity\Triggers\Triggers as Triggers;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.2.4';
+	const VERSION = '0.2.5';
 
 	// Объект загруженного приложения
 	private $App = null;
@@ -296,12 +296,17 @@ class Alonity {
 		foreach(scandir($path) as $file){
 			if($file=='.' || $file=='..'){ continue; }
 
-			$filename = $path.'/'.$file;
+			$filename = str_replace('//', '/', $path.'/'.$file);
 
 			if(is_file($filename)){
+
 				require_once($filename);
 
-				$this->Triggers()->call('onLoadComponent', pathinfo($filename, PATHINFO_FILENAME));
+				$info = str_replace($this->getRoot().'/Components', '', $filename);
+
+				$info = mb_substr($info, 0, -4, 'UTF-8');
+
+				$this->Triggers()->call('onLoadComponent', $info);
 			}else{
 				$this->getComponentsRecursive($filename);
 			}
@@ -327,7 +332,7 @@ class Alonity {
 			}else{
 				require_once($this->getRoot().$value);
 
-				$this->Triggers()->call('onLoadComponent', basename($value));
+				$this->Triggers()->call('onLoadComponent');
 			}
 		}
 	}
@@ -353,6 +358,8 @@ class Alonity {
 		// Загрузка модулей
 		$this->getComponents();
 
+		$this->Triggers()->call('onAfterLoadComponents');
+
 		// Настройка роутера
 		$this->Router()->SetOptions([
 			'dir_root' => $this->getRoot(),
@@ -371,11 +378,15 @@ class Alonity {
 			exit('404');
 		}
 
+		$this->Triggers()->call('onBeforeMVC');
+
 		$this->getModel = $this->Model()->getCurrent();
 
 		$this->getView = $this->View()->getCurrent();
 
 		$this->getController = $this->Controller()->getCurrent();
+
+		$this->Triggers()->call('onAfterMVC');
 
 		$this->Controller()->callToAction();
 	}
