@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\View;
@@ -33,6 +33,40 @@ class View {
 		$this->alonity = $alonity;
 	}
 
+	public function getView($filename, $data=[]){
+		$key = md5(var_export($filename, true).var_export($data, true));
+
+		if(isset($this->viewCache[$key])){ return $this->viewCache[$key]; }
+
+		$path = $this->alonity->getRoot().$filename;
+
+		if(!file_exists($path) || !is_file($path)){
+			throw new ViewException("File $filename not found");
+		}
+
+		ob_start();
+
+		include($path);
+
+		$content = ob_get_clean();
+
+		$this->viewCache[$key] = $content;
+
+		return $this->viewCache[$key];
+	}
+
+	/**
+	 * Выводит содержимое шаблона на экран
+	 *
+	 * @param $filename string
+	 * @param $data array
+	 *
+	 * @return void
+	 */
+	public function writeView($filename, $data=[]){
+		echo $this->getView($filename, $data);
+	}
+
 	/**
 	 * Возвращает содержимое шаблона
 	 *
@@ -43,7 +77,7 @@ class View {
 	 *
 	 * @return string
 	*/
-	public function getView($filename, $data=[]){
+	public function getViewTpl($filename, $data=[]){
 
 		$key = md5(var_export($filename, true).var_export($data, true));
 
@@ -70,8 +104,8 @@ class View {
 	 *
 	 * @return void
 	 */
-	public function writeView($filename, $data=[]){
-		echo $this->getView($filename, $data);
+	public function writeViewTpl($filename, $data=[]){
+		echo $this->getViewTpl($filename, $data);
 	}
 
 	/**
@@ -100,7 +134,7 @@ class View {
 	 * @return string
 	 */
 	public function writeJson($params){
-		return $this->writeJson($params);
+		echo $this->getJson($params);
 	}
 
 	/**
