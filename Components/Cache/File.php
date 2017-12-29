@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components\Cache;
@@ -24,7 +24,7 @@ class File {
 	private $rootDir = null;
 
 	public function setOptions($options){
-		$this->options = array_merge($this->options, $options);
+		$this->options = array_replace_recursive($this->options, $options);
 	}
 
 	/**
@@ -124,8 +124,8 @@ class File {
 
 		$filepath = $this->getRoot().$this->options['path'];
 
-		$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL;
-		$data .= '	$cache = '.var_export($value, true).';'.PHP_EOL;
+		$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL.PHP_EOL;
+		$data .= '$cache = '.var_export($value, true).';'.PHP_EOL.PHP_EOL;
 		$data .= '?>';
 
 		if(!file_exists($filepath)){ mkdir($filepath, 0755, true); }
@@ -158,8 +158,8 @@ class File {
 
 		foreach($params as $k => $v){
 
-			$data = '<?php '.date("d.m.Y H:i:s").'\n\n';
-			$data .= '$cache = '.var_export($v, true).';\n\n';
+			$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL.PHP_EOL;
+			$data .= '$cache = '.var_export($v, true).';'.PHP_EOL.PHP_EOL;
 			$data .= '?>';
 
 			$key = $this->makeKey($k);
