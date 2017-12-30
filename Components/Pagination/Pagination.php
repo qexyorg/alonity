@@ -104,7 +104,7 @@ class Pagination {
 	 * @return integer
 	 */
 	public function getLimit(){
-		return $this->start;
+		return $this->limit;
 	}
 
 	/**
