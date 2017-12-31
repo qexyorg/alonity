@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\View;
@@ -33,6 +33,19 @@ class View {
 		$this->alonity = $alonity;
 	}
 
+	private function view($_PATH, $data){
+
+		if(!empty($data)){
+			extract($data, EXTR_SKIP | EXTR_PREFIX_INVALID, '_');
+		}
+
+		ob_start();
+
+		include($_PATH);
+
+		return ob_get_clean();
+	}
+
 	public function getView($filename, $data=[]){
 		$key = md5(var_export($filename, true).var_export($data, true));
 
@@ -44,13 +57,7 @@ class View {
 			throw new ViewException("File $filename not found");
 		}
 
-		ob_start();
-
-		include($path);
-
-		$content = ob_get_clean();
-
-		$this->viewCache[$key] = $content;
+		$this->viewCache[$key] = $this->view($path, $data);
 
 		return $this->viewCache[$key];
 	}

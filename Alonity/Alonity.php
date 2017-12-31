@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 0.1.0
+ * @version 0.2.0
  */
 
 namespace Alonity;
@@ -24,7 +24,7 @@ use Alonity\Triggers\Triggers as Triggers;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.2.9';
+	const VERSION = '0.2.9b';
 
 	// Объект загруженного приложения
 	private $App = null;
@@ -39,6 +39,8 @@ class Alonity {
 
 	// Описание приложения
 	private $AppAbout = '';
+
+	private $appConfig = null;
 
 	// Автор приложения
 	private $AppAuthor = 'Alonity';
@@ -208,8 +210,10 @@ class Alonity {
 	 * @throws \AlonityException
 	 *
 	 * @return array
-	*/
-	private function GetApp($name){
+	 */
+	public function getApp($name){
+
+		if(!is_null($this->appConfig)){ return $this->appConfig; }
 
 		$filename = dirname(__DIR__)."/Applications/$name/$name.php";
 
@@ -217,7 +221,9 @@ class Alonity {
 			throw new \AlonityException('Application "'.$name.'" not found');
 		}
 
-		return (require_once($filename));
+		$this->appConfig = (require_once($filename));
+
+		return $this->appConfig;
 	}
 
 	/**
@@ -228,10 +234,10 @@ class Alonity {
 	 * @throws \AlonityException (если приложение недоступно)
 	 *
 	 * @return void
-	*/
+	 */
 	private function PrepareApp($name=''){
 
-		$app = $this->GetApp($name);
+		$app = $this->getApp($name);
 
 		if(isset($app['version'])){
 			$this->AppVersion = $app['version'];
@@ -320,7 +326,7 @@ class Alonity {
 	 * @throws \AlonityException
 	 *
 	 * @return void
-	*/
+	 */
 	private function getComponents(){
 		if(empty($this->AppComponents)){ return; }
 
@@ -345,7 +351,7 @@ class Alonity {
 	 * @throws \AlonityException
 	 *
 	 * @return void
-	*/
+	 */
 	public function RunApp($name){
 
 		$this->AppKey = $name;
