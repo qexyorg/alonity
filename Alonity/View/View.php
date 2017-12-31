@@ -36,7 +36,7 @@ class View {
 	private function view($_PATH, $data){
 
 		if(!empty($data)){
-			extract($data, EXTR_SKIP | EXTR_PREFIX_INVALID, '_');
+			extract($data, EXTR_PREFIX_INVALID, '_');
 		}
 
 		ob_start();
