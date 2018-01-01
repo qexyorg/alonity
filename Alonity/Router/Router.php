@@ -97,7 +97,14 @@ class Router extends Alonity {
 
 			if(isset($matches[0])){ unset($matches[0]); }
 
-			$this->params = $matches;
+			if(isset($value['params']) && is_array($value['params'])){
+				$i = 1;
+				foreach($value['params'] as $k => $v){
+					$this->params[$k] = (isset($matches[$i])) ? $matches[$i] : '';
+
+					$i++;
+				}
+			}
 
 			$this->currentRoute = $value;
 
