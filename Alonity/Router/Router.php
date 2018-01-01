@@ -24,6 +24,8 @@ class Router extends Alonity {
 	private $appKey = '';
 	private $routes = [];
 
+	private $params = [];
+
 	private $currentRoute = null;
 	private $currentKey = 'notfound';
 	private $currentInited = false;
@@ -95,6 +97,8 @@ class Router extends Alonity {
 
 			if(isset($matches[0])){ unset($matches[0]); }
 
+			$this->params = $matches;
+
 			$this->currentRoute = $value;
 
 			$this->currentKey = $key;
@@ -148,6 +152,7 @@ class Router extends Alonity {
 		$this->currentRoute['viewClass'] = "{$this->currentRoute['baseClass']}View";
 		$this->currentRoute['controllerClass'] = "{$this->currentRoute['baseClass']}Controller";
 		$this->currentRoute['actionMethod'] = "{$this->currentRoute['action']}Action";
+		$this->currentRoute['actionParams'] = $this->params;
 
 		return $this->currentRoute;
 	}

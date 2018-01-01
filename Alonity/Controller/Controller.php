@@ -81,6 +81,11 @@ class Controller {
 
 		return $route['actionMethod'];
 	}
+	public function getParams(){
+		$route = $this->getRoute();
+
+		return $route['actionParams'];
+	}
 
 	/**
 	 * Возвращает экземпляр текущего контроллера
@@ -126,7 +131,7 @@ class Controller {
 			throw new ControllerException("Method \"$action\" not found in controller");
 		}
 
-		$current->$action();
+		$current->$action($this->getParams());
 	}
 }
 
