@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Router;
@@ -100,7 +100,7 @@ class Router extends Alonity {
 			if(isset($value['params']) && is_array($value['params'])){
 				$i = 1;
 				foreach($value['params'] as $k => $v){
-					$this->params[$k] = (isset($matches[$i])) ? $matches[$i] : '';
+					$this->params[$k] = (isset($matches[$v])) ? $matches[$v] : '';
 
 					$i++;
 				}
