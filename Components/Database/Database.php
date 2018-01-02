@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components;
@@ -164,6 +164,10 @@ class Database {
 	}
 
 	public static function getLastError(){
+		if(empty(self::$last_error)){
+			self::$last_error = self::$objects[self::$options['engine']]->getObj()->error;
+		}
+		
 		return self::$last_error;
 	}
 
