@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -130,7 +130,7 @@ class Select {
 	/**
 	 * Выставляет ограничения возвращаемых результатов
 	 *
-	 * @param $number array | integer
+	 * @param $limit array | integer
 	 *
 	 * @example 10 returned LIMIT 10
 	 * @example array(10, 20) returned LIMIT 10, 20
@@ -139,8 +139,8 @@ class Select {
 	 *
 	 * @return \Alonity\Components\Database\MySQLi\Select()
 	 */
-	public function limit($number){
-		$this->limit = intval($number);
+	public function limit($limit){
+		$this->limit = $limit;
 
 		return $this;
 	}
