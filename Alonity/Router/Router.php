@@ -100,7 +100,7 @@ class Router extends Alonity {
 			if(isset($value['params']) && is_array($value['params'])){
 				$i = 1;
 				foreach($value['params'] as $k => $v){
-					$this->params[$k] = (isset($matches[$v])) ? $matches[$v] : '';
+					$this->params[$k] = (isset($matches[$v])) ? $matches[$v] : $v;
 
 					$i++;
 				}
