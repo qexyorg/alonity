@@ -24,7 +24,7 @@ use Alonity\Triggers\Triggers as Triggers;
 class Alonity {
 
 	// Версия ядра
-	const VERSION = '0.2.10d';
+	const VERSION = '0.2.11';
 
 	// Объект загруженного приложения
 	private $App = null;

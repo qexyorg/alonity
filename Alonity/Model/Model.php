@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Model;
@@ -23,6 +23,8 @@ class Model {
 	private $modelFile = null;
 
 	private $route = null;
+
+	private $cache = [];
 
 	/** @var \Alonity\Alonity */
 	private $alonity = null;
@@ -81,6 +83,10 @@ class Model {
 	public function getCurrent(){
 		if(!is_null($this->current)){ return $this->current; }
 
+		$key = md5($this->current);
+
+		if(isset($this->cache[$key])){ return $this->cache[$key]; }
+
 		$filename = $this->getFilename();
 
 		if(!file_exists($filename)){
@@ -98,6 +104,36 @@ class Model {
 		$this->current = new $classname($this->alonity);
 
 		return $this->current;
+	}
+
+	/**
+	 * Возвращает экземпляр класса модели по имени
+	 *
+	 * @param $name string
+	 *
+	 * @throws ModelException
+	 *
+	 * @return object
+	*/
+	public function getOtherModel($name){
+
+		$key = md5($name);
+
+		if(isset($this->cache[$key])){ return $this->cache[$key]; }
+
+		$filename = "{$this->alonity->getRoot()}/Applications/{$this->alonity->getAppKey()}/Models/{$name}.php";
+
+		require_once($filename);
+
+		$classname = "{$name}Model";
+
+		if(!class_exists($classname)){
+			throw new ModelException("Class \"$classname\" not found in \"$filename\"");
+		}
+
+		$this->cache[$key] = new $classname($this->alonity);
+
+		return $this->cache[$key];
 	}
 }
 
