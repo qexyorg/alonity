@@ -130,7 +130,7 @@ class Select {
 	/**
 	 * Выставляет ограничения возвращаемых результатов
 	 *
-	 * @param $limit array | integer
+	 * @param $number array | integer
 	 *
 	 * @example 10 returned LIMIT 10
 	 * @example array(10, 20) returned LIMIT 10, 20
@@ -139,8 +139,8 @@ class Select {
 	 *
 	 * @return \Alonity\Components\Database\MySQLi\Select()
 	 */
-	public function limit($limit){
-		$this->limit = $limit;
+	public function limit($number){
+		$this->limit = intval($number);
 
 		return $this;
 	}
@@ -564,7 +564,15 @@ class Select {
 			return $result;
 		}
 
-		return $this->result->fetch_all(MYSQLI_NUM);
+		if(method_exists($this->result, 'fetch_all')){
+			return $this->result->fetch_all(MYSQLI_NUM);
+		}
+
+		while($ar = $this->result->fetch_array()){
+			$result[] = $ar;
+		}
+
+		return $result;
 	}
 
 	public function getAssoc(){
@@ -574,7 +582,15 @@ class Select {
 			return $result;
 		}
 
-		return $this->result->fetch_all(MYSQLI_ASSOC);
+		if(method_exists($this->result, 'fetch_all')){
+			return $this->result->fetch_all(MYSQLI_ASSOC);
+		}
+
+		while($ar = $this->result->fetch_assoc()){
+			$result[] = $ar;
+		}
+
+		return $result;
 	}
 
 	public function getNum(){
