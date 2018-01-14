@@ -164,30 +164,41 @@ class Database {
 	}
 
 	public static function getLastError(){
-		if(empty(self::$last_error)){
-			self::$last_error = self::$objects[self::$options['engine']]->getObj()->error;
-		}
-		
 		return self::$last_error;
 	}
 
 	public static function select(){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
 		return self::$objects[self::$options['engine']]->select();
 	}
 
 	public static function insert(){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
 		return self::$objects[self::$options['engine']]->insert();
 	}
 
 	public static function update(){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
 		return self::$objects[self::$options['engine']]->update();
 	}
 
 	public static function delete(){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
 		return self::$objects[self::$options['engine']]->delete();
 	}
 
 	public static function query($sql){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
 		return self::$objects[self::$options['engine']]->query($sql);
 	}
 }
