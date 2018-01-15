@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace Alonity\Router;
@@ -90,7 +90,7 @@ class Router extends Alonity {
 			$pattern = str_replace([
 				'\:int', '\:integer', '\:string', '\:float', '\:boolean', '\:any'
 			], [
-				'(\d+)', '(\d+)', '([\w\-]+)', '(\d+\.?\d+?)', '(true|false)', '([^/^&]+)'
+				'(\d+)', '(\d+)', '([\w\-]+)', '(\d+\.?\d+?)', '(true|false)', '(.*)'
 			], $pattern);
 
 			if(!preg_match("/^$pattern\/?$/i", $url, $matches)){ continue; }
