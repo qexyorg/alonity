@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Cache;
@@ -249,6 +249,15 @@ class File {
 		}
 
 		return $num;
+	}
+
+	/**
+	 * Возвращает экземпляр текущего класса File
+	 *
+	 * @return \Alonity\Components\Cache\File
+	 */
+	public function getInstance(){
+		return $this;
 	}
 }
 

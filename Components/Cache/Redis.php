@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Cache;
@@ -235,6 +235,15 @@ class Redis {
 		$delete = $this->getRedis()->del($this->options['key']);
 
 		return ($delete===false) ? 0 : intval($delete);
+	}
+
+	/**
+	 * Возвращает экземпляр класса Redis
+	 *
+	 * @return \Redis
+	*/
+	public function getInstance(){
+		return $this->getRedis();
 	}
 }
 
