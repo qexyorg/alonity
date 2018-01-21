@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.2
+ * @version 1.1.0
  */
 
 namespace Alonity\Router;
@@ -155,9 +155,24 @@ class Router extends Alonity {
 			$this->currentRoute['baseClass'] = ucfirst(mb_strtolower($this->currentKey));
 		}
 
-		$this->currentRoute['modelClass'] = "{$this->currentRoute['baseClass']}Model";
-		$this->currentRoute['viewClass'] = "{$this->currentRoute['baseClass']}View";
-		$this->currentRoute['controllerClass'] = "{$this->currentRoute['baseClass']}Controller";
+		if(!isset($this->currentRoute['model'])){
+			$this->currentRoute['model'] = $this->currentRoute['baseClass'];
+		}
+
+		if(!isset($this->currentRoute['view'])){
+			$this->currentRoute['view'] = $this->currentRoute['baseClass'];
+		}
+
+		if(!isset($this->currentRoute['controller'])){
+			$this->currentRoute['controller'] = $this->currentRoute['baseClass'];
+		}
+
+		$this->currentRoute['modelFile'] = $this->currentRoute['model'];
+		$this->currentRoute['viewFile'] = $this->currentRoute['view'];
+		$this->currentRoute['controllerFile'] = $this->currentRoute['controller'];
+		$this->currentRoute['modelClass'] = "{$this->currentRoute['model']}Model";
+		$this->currentRoute['viewClass'] = "{$this->currentRoute['view']}View";
+		$this->currentRoute['controllerClass'] = "{$this->currentRoute['controller']}Controller";
 		$this->currentRoute['actionMethod'] = "{$this->currentRoute['action']}Action";
 		$this->currentRoute['actionParams'] = $this->params;
 

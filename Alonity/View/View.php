@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\View;
@@ -168,7 +168,7 @@ class View {
 		$route = $this->getRoute();
 
 		$this->viewFile = $this->alonity->getRoot().'/Applications/'.$this->alonity->getAppKey();
-		$this->viewFile .= '/Views/'.$route['baseClass'].'.php';
+		$this->viewFile .= '/Views/'.$route['viewFile'].'.php';
 
 		return $this->viewFile;
 	}

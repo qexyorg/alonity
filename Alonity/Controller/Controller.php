@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Controller;
@@ -55,7 +55,7 @@ class Controller {
 		$route = $this->getRoute();
 
 		$this->controllerFile = $this->alonity->getRoot().'/Applications/'.$this->alonity->getAppKey();
-		$this->controllerFile .= '/Controllers/'.$route['baseClass'].'.php';
+		$this->controllerFile .= '/Controllers/'.$route['controllerFile'].'.php';
 
 		return $this->controllerFile;
 	}

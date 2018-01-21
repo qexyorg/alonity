@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Model;
@@ -57,7 +57,7 @@ class Model {
 		$route = $this->getRoute();
 
 		$this->modelFile = $this->alonity->getRoot().'/Applications/'.$this->alonity->getAppKey();
-		$this->modelFile .= '/Models/'.$route['baseClass'].'.php';
+		$this->modelFile .= '/Models/'.$route['modelFile'].'.php';
 
 		return $this->modelFile;
 	}

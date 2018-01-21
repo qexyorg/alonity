@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components;
@@ -52,7 +52,7 @@ class Crypt {
 	 * @return string
 	 */
 	public static function saledMD5($value, $salt=''){
-		return self::MD5(self::MD5($value).self::MD5($salt));
+		return self::MD5($value.$salt);
 	}
 
 	/**
