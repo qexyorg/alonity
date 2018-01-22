@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.1.1
  */
 
 namespace Alonity\Router;
@@ -83,6 +83,10 @@ class Router extends Alonity {
 				}elseif(is_array($value['methods']) && !in_array($method, $value['methods'])){
 					continue;
 				}
+			}
+
+			if(mb_substr($value['pattern'], -1, null, 'UTF-8')=='/'){
+				$value['pattern'] = mb_substr($value['pattern'], 0, -1, 'UTF-8');
 			}
 
 			$pattern = preg_quote($value['pattern'], '/');
