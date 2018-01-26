@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -38,23 +38,13 @@ class Select {
 
 	private $group = [];
 
-	private $result = null;
+	private $result = false;
 
 	private $join = [];
 
 	private $jointypes = ['inner', 'left', 'right'];
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->from = [];
-		$this->where = [];
-		$this->whereor = [];
-		$this->limit = null;
-		$this->order = null;
-		$this->columns = [];
-		$this->group = [];
-
-		$this->join = [];
 
 		$this->obj = $obj;
 	}
@@ -533,12 +523,18 @@ class Select {
 		return "ORDER BY $result";
 	}
 
-	/**
-	 * Объединяет все элементы и создает запрос
-	 *
-	 * @return boolean
-	 */
-	public function execute(){
+	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
+		return $this->sql;
+	}
+
+	private function compileSQL(){
 
 		$columns = $this->filterColumns($this->columns);
 
@@ -554,9 +550,19 @@ class Select {
 
 		$limit = $this->filterLimit($this->limit);
 
-		$this->sql = "SELECT $columns $from $join $where $group $order $limit";
+		return "SELECT $columns $from $join $where $group $order $limit";
+	}
 
-		$this->result = pg_query($this->obj, $this->sql);
+	/**
+	 * Объединяет все элементы и создает запрос
+	 *
+	 * @return boolean
+	 */
+	public function execute(){
+
+		$sql = $this->getSQL();
+
+		$this->result = pg_query($this->obj, $sql);
 
 		if(!$this->result){
 			return false;

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Components;
@@ -167,39 +167,58 @@ class Database {
 		return self::$last_error;
 	}
 
+	private static function getEngine(){
+		if(!isset(self::$objects[self::$options['engine']])){
+			self::connect();
+		}
+
+		return self::$objects[self::$options['engine']];
+	}
+
+	/**
+	 * @return \Alonity\Components\Database\MySQLi\Select
+	 * @return \Alonity\Components\Database\MySQL\Select
+	 * @return \Alonity\Components\Database\PostgreSQL\Select
+	*/
 	public static function select(){
-		if(!isset(self::$objects[self::$options['engine']])){
-			self::connect();
-		}
-		return self::$objects[self::$options['engine']]->select();
+		return self::getEngine()->select();
 	}
 
+	/**
+	 * @return \Alonity\Components\Database\MySQLi\Insert
+	 * @return \Alonity\Components\Database\MySQL\Insert
+	 * @return \Alonity\Components\Database\PostgreSQL\Insert
+	 */
 	public static function insert(){
-		if(!isset(self::$objects[self::$options['engine']])){
-			self::connect();
-		}
-		return self::$objects[self::$options['engine']]->insert();
+		return self::getEngine()->insert();
 	}
 
+	/**
+	 * @return \Alonity\Components\Database\MySQLi\Update
+	 * @return \Alonity\Components\Database\MySQL\Update
+	 * @return \Alonity\Components\Database\PostgreSQL\Update
+	 */
 	public static function update(){
-		if(!isset(self::$objects[self::$options['engine']])){
-			self::connect();
-		}
-		return self::$objects[self::$options['engine']]->update();
+		return self::getEngine()->update();
 	}
 
+	/**
+	 * @return \Alonity\Components\Database\MySQLi\Delete
+	 * @return \Alonity\Components\Database\MySQL\Delete
+	 * @return \Alonity\Components\Database\PostgreSQL\Delete
+	 */
 	public static function delete(){
-		if(!isset(self::$objects[self::$options['engine']])){
-			self::connect();
-		}
-		return self::$objects[self::$options['engine']]->delete();
+		return self::getEngine()->delete();
 	}
 
+	/**
+	 * @param $sql string
+	 *
+	 * @return \mysqli_result
+	 * @return resource
+	 */
 	public static function query($sql){
-		if(!isset(self::$objects[self::$options['engine']])){
-			self::connect();
-		}
-		return self::$objects[self::$options['engine']]->query($sql);
+		return self::getEngine()->query($sql);
 	}
 }
 

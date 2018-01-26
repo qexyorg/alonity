@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -32,30 +32,25 @@ class Select {
 
 	private $order = null;
 
+	/**
+	 * @var \mysqli
+	*/
 	private $obj = null;
 
 	private $columns = [];
 
 	private $group = [];
 
-	private $result = null;
+	/**
+	 * @var \mysqli_result
+	*/
+	private $result = false;
 
 	private $join = [];
 
 	private $jointypes = ['inner', 'left', 'right'];
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->from = [];
-		$this->where = [];
-		$this->whereor = [];
-		$this->limit = null;
-		$this->order = null;
-		$this->columns = [];
-		$this->group = [];
-
-		$this->join = [];
-
 		/**
 		 * @return \mysqli
 		*/
@@ -525,12 +520,18 @@ class Select {
 		return $this->obj->error;
 	}
 
-	/**
-	 * Объединяет все элементы и создает запрос
-	 *
-	 * @return boolean
-	 */
-	public function execute(){
+	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
+		return $this->sql;
+	}
+
+	private function compileSQL(){
 
 		$columns = $this->filterColumns($this->columns);
 
@@ -546,9 +547,19 @@ class Select {
 
 		$limit = $this->filterLimit($this->limit);
 
-		$this->sql = "SELECT $columns $from $join $where $group $order $limit";
+		return "SELECT $columns $from $join $where $group $order $limit";
+	}
 
-		$this->result = $this->obj->query($this->sql);
+	/**
+	 * Объединяет все элементы и создает запрос
+	 *
+	 * @return boolean
+	 */
+	public function execute(){
+
+		$sql = $this->getSQL();
+
+		$this->result = $this->obj->query($sql);
 
 		if($this->result===false){
 			return false;

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -24,17 +24,23 @@ class Delete {
 
 	private $sql = null;
 
+	/**
+	 * @var \mysqli_result
+	 */
+	private $result = false;
+
 	private $from = '';
 
 	private $where = [];
 
 	private $limit = [];
 
-	public function __construct($obj){
-		$this->sql = "";
-		$this->from = "";
-		$this->where = [];
+	/**
+	 * @var \mysqli
+	 */
+	private $obj = null;
 
+	public function __construct($obj){
 		/**
 		 * @return \mysqli
 		 */
@@ -202,12 +208,30 @@ class Delete {
 		return $this->obj->error;
 	}
 
+	public function getDeletedNum(){
+		return $this->obj->affected_rows;
+	}
+
 	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
 		return $this->sql;
 	}
 
-	public function getDeletedNum(){
-		return $this->obj->affected_rows;
+	private function compileSQL(){
+
+		$from = $this->filterFrom($this->from);
+
+		$where = $this->filterWhere($this->where);
+
+		$limit = $this->filterLimit($this->limit);
+
+		return "DELETE FROM $from $where $limit";
 	}
 
 	/**
@@ -217,15 +241,9 @@ class Delete {
 	 */
 	public function execute(){
 
-		$from = $this->filterFrom($this->from);
+		$sql = $this->getSQL();
 
-		$where = $this->filterWhere($this->where);
-
-		$limit = $this->filterLimit($this->limit);
-
-		$this->sql = "DELETE FROM $from $where $limit";
-
-		$this->result = $this->obj->query($this->sql);
+		$this->result = $this->obj->query($sql);
 
 		if($this->result===false){
 			return false;

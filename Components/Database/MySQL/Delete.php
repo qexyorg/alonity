@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\MySQL;
@@ -28,12 +28,11 @@ class Delete {
 
 	private $where = [];
 
+	private $result = false;
+
 	private $limit = [];
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->from = "";
-		$this->where = [];
 
 		$this->obj = $obj;
 	}
@@ -199,12 +198,29 @@ class Delete {
 		return mysql_error($this->obj);
 	}
 
+	public function getDeletedNum(){
+		return mysql_affected_rows($this->obj);
+	}
+
 	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
 		return $this->sql;
 	}
 
-	public function getDeletedNum(){
-		return mysql_affected_rows($this->obj);
+	private function compileSQL(){
+		$from = $this->filterFrom($this->from);
+
+		$where = $this->filterWhere($this->where);
+
+		$limit = $this->filterLimit($this->limit);
+
+		return "DELETE FROM $from $where $limit";
 	}
 
 	/**
@@ -214,15 +230,9 @@ class Delete {
 	 */
 	public function execute(){
 
-		$from = $this->filterFrom($this->from);
+		$sql = $this->getSQL();
 
-		$where = $this->filterWhere($this->where);
-
-		$limit = $this->filterLimit($this->limit);
-
-		$this->sql = "DELETE FROM $from $where $limit";
-
-		$this->result = mysql_query($this->sql, $this->obj);
+		$this->result = mysql_query($sql, $this->obj);
 
 		if($this->result===false){
 			return false;

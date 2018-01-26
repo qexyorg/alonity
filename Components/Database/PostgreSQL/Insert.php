@@ -30,11 +30,6 @@ class Insert {
 	private $last_id = 0;
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->into = "";
-		$this->columns = [];
-		$this->insert_num = 0;
-
 		$this->obj = $obj;
 	}
 

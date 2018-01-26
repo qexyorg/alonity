@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -21,18 +21,23 @@ class Insert {
 
 	private $into = '';
 
+	/**
+	 * @var \mysqli_result
+	 */
+	private $result = false;
+
 	private $columns = [];
 
 	private $values = [];
 
 	private $insert_num = 0;
 
-	public function __construct($obj){
-		$this->sql = "";
-		$this->into = "";
-		$this->columns = [];
-		$this->insert_num = 0;
+	/**
+	 * @var \mysqli
+	*/
+	private $obj = null;
 
+	public function __construct($obj){
 		/**
 		 * @return \mysqli
 		*/
@@ -218,12 +223,18 @@ class Insert {
 		return $this->obj->error;
 	}
 
-	/**
-	 * Объединяет все элементы и создает запрос
-	 *
-	 * @return boolean
-	 */
-	public function execute(){
+	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
+		return $this->sql;
+	}
+
+	private function compileSQL(){
 
 		$into = $this->filterInto($this->into);
 
@@ -231,9 +242,19 @@ class Insert {
 
 		$values = $this->filterValues($this->values);
 
-		$this->sql = "INSERT INTO $into $columns VALUES $values";
+		return "INSERT INTO $into $columns VALUES $values";
+	}
 
-		$this->result = $this->obj->query($this->sql);
+	/**
+	 * Объединяет все элементы и создает запрос
+	 *
+	 * @return boolean
+	 */
+	public function execute(){
+
+		$sql = $this->getSQL();
+
+		$this->result = $this->obj->query($sql);
 
 		if($this->result===false){
 			$this->insert_num = 0;

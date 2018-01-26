@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -26,6 +26,10 @@ class Update {
 
 	private $table = '';
 
+	private $obj = null;
+
+	private $result = false;
+
 	private $set = [];
 
 	private $where = [];
@@ -33,11 +37,6 @@ class Update {
 	private $limit = [];
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->table = "";
-		$this->set = [];
-		$this->where = [];
-
 		$this->obj = $obj;
 	}
 
@@ -258,20 +257,22 @@ class Update {
 		return pg_last_error($this->obj);
 	}
 
-	public function getSQL(){
-		return $this->sql;
-	}
-
 	public function getUpdatedNum(){
 		return pg_affected_rows($this->result);
 	}
 
-	/**
-	 * Объединяет все элементы и создает запрос
-	 *
-	 * @return boolean
-	 */
-	public function execute(){
+	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
+		return $this->sql;
+	}
+
+	private function compileSQL(){
 
 		$table = $this->filterTable($this->table);
 
@@ -281,9 +282,19 @@ class Update {
 
 		$limit = $this->filterLimit($this->limit);
 
-		$this->sql = "UPDATE $table $set $where $limit";
+		return "UPDATE $table $set $where $limit";
+	}
 
-		$this->result = @pg_query($this->obj, $this->sql);
+	/**
+	 * Объединяет все элементы и создает запрос
+	 *
+	 * @return boolean
+	 */
+	public function execute(){
+
+		$sql = $this->getSQL();
+
+		$this->result = @pg_query($this->obj, $sql);
 
 		if(!$this->result){
 			return false;

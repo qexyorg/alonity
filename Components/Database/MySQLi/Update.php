@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -24,6 +24,16 @@ class Update {
 
 	private $sql = null;
 
+	/**
+	 * @var \mysqli_result
+	 */
+	private $result = false;
+
+	/**
+	 * @var \mysqli
+	 */
+	private $obj = null;
+
 	private $table = '';
 
 	private $set = [];
@@ -33,11 +43,6 @@ class Update {
 	private $limit = [];
 
 	public function __construct($obj){
-		$this->sql = "";
-		$this->table = "";
-		$this->set = [];
-		$this->where = [];
-
 		/**
 		 * @return \mysqli
 		 */
@@ -253,20 +258,22 @@ class Update {
 		return $this->obj->error;
 	}
 
-	public function getSQL(){
-		return $this->sql;
-	}
-
 	public function getUpdatedNum(){
 		return $this->obj->affected_rows;
 	}
 
-	/**
-	 * Объединяет все элементы и создает запрос
-	 *
-	 * @return boolean
-	 */
-	public function execute(){
+	public function getSQL(){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL();
+
+		return $this->sql;
+	}
+
+	private function compileSQL(){
 
 		$table = $this->filterTable($this->table);
 
@@ -276,9 +283,19 @@ class Update {
 
 		$limit = $this->filterLimit($this->limit);
 
-		$this->sql = "UPDATE $table $set $where $limit";
+		return "UPDATE $table $set $where $limit";
+	}
 
-		$this->result = $this->obj->query($this->sql);
+	/**
+	 * Объединяет все элементы и создает запрос
+	 *
+	 * @return boolean
+	 */
+	public function execute(){
+
+		$sql = $this->getSQL();
+
+		$this->result = $this->obj->query($sql);
 
 		if($this->result===false){
 			return false;
