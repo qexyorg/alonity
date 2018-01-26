@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.1
+ * @version 1.2.0
  */
 
 namespace Alonity\Router;
@@ -171,9 +171,18 @@ class Router extends Alonity {
 			$this->currentRoute['controller'] = $this->currentRoute['baseClass'];
 		}
 
-		$this->currentRoute['modelFile'] = $this->currentRoute['model'];
-		$this->currentRoute['viewFile'] = $this->currentRoute['view'];
-		$this->currentRoute['controllerFile'] = $this->currentRoute['controller'];
+		if(!isset($this->currentRoute['modelFile'])){
+			$this->currentRoute['modelFile'] = $this->currentRoute['model'];
+		}
+
+		if(!isset($this->currentRoute['viewFile'])){
+			$this->currentRoute['viewFile'] = $this->currentRoute['view'];
+		}
+
+		if(!isset($this->currentRoute['controllerFile'])){
+			$this->currentRoute['controllerFile'] = $this->currentRoute['controller'];
+		}
+
 		$this->currentRoute['modelClass'] = "{$this->currentRoute['model']}Model";
 		$this->currentRoute['viewClass'] = "{$this->currentRoute['view']}View";
 		$this->currentRoute['controllerClass'] = "{$this->currentRoute['controller']}Controller";
