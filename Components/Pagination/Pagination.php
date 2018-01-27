@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components;
@@ -267,7 +267,8 @@ class Pagination {
 		$result = [];
 
 		if($this->prevprev && $this->current>1){
-			$result['first'] = [
+			$result[] = [
+				'type' => 'first',
 				'title' => 1,
 				'text' => '<<',
 				'url' => str_replace('{PAGE}', 1, $url),
@@ -277,7 +278,8 @@ class Pagination {
 		}
 
 		if($this->prev && $this->current>1){
-			$result['prev'] = [
+			$result[] = [
+				'type' => 'prev',
 				'title' => ($this->current-1),
 				'text' => '<',
 				'url' => str_replace('{PAGE}', ($this->current-1), $url),
@@ -292,7 +294,8 @@ class Pagination {
 				continue;
 			}
 
-			$result[$i] = [
+			$result[] = [
+				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
 				'url' => str_replace('{PAGE}', $i, $url),
@@ -301,7 +304,8 @@ class Pagination {
 			];
 		}
 
-		$result['current'] = [
+		$result[] = [
+			'type' => 'current',
 			'title' => $this->current,
 			'text' => $this->current,
 			'url' => str_replace('{PAGE}', $this->current, $url),
@@ -315,7 +319,8 @@ class Pagination {
 				continue;
 			}
 
-			$result[$i] = [
+			$result[] = [
+				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
 				'url' => str_replace('{PAGE}', $i, $url),
@@ -325,7 +330,8 @@ class Pagination {
 		}
 
 		if($this->next && ($pages-$this->current)>0){
-			$result['next'] = [
+			$result[] = [
+				'type' => 'next',
 				'title' => ($this->current+1),
 				'text' => '>',
 				'url' => str_replace('{PAGE}', ($this->current+1), $url),
@@ -335,7 +341,8 @@ class Pagination {
 		}
 
 		if($this->nextnext && ($pages-$this->current)>0){
-			$result['last'] = [
+			$result[] = [
+				'type' => 'last',
 				'title' => $pages,
 				'text' => '>>',
 				'url' => str_replace('{PAGE}', $pages, $url),
@@ -351,7 +358,8 @@ class Pagination {
 		$result = [];
 
 		if($this->prev && $this->current>1){
-			$result['prev'] = [
+			$result[] = [
+				'type' => 'prev',
 				'title' => ($this->current-1),
 				'text' => '<',
 				'url' => str_replace('{PAGE}', ($this->current-1), $url),
@@ -361,7 +369,8 @@ class Pagination {
 		}
 
 		if(($this->current-$this->left)>1){
-			$result['first'] = [
+			$result[] = [
+				'type' => 'first',
 				'title' => 1,
 				'text' => 1,
 				'url' => str_replace('{PAGE}', 1, $url),
@@ -371,7 +380,8 @@ class Pagination {
 		}
 
 		if(($this->current-$this->left)>2){
-			$result['prev...'] = [
+			$result[] = [
+				'type' => 'prevsub',
 				'title' => '...',
 				'text' => '...',
 				'url' => str_replace('{PAGE}', -1, $url),
@@ -387,6 +397,7 @@ class Pagination {
 			}
 
 			$result[$i] = [
+				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
 				'url' => str_replace('{PAGE}', $i, $url),
@@ -395,7 +406,8 @@ class Pagination {
 			];
 		}
 
-		$result['current'] = [
+		$result[] = [
+			'type' => 'current',
 			'title' => $this->current,
 			'text' => $this->current,
 			'url' => str_replace('{PAGE}', $this->current, $url),
@@ -409,7 +421,8 @@ class Pagination {
 				continue;
 			}
 
-			$result[$i] = [
+			$result[] = [
+				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
 				'url' => str_replace('{PAGE}', $i, $url),
@@ -419,7 +432,8 @@ class Pagination {
 		}
 
 		if(($pages-($this->current+$this->right))>=2){
-			$result['next...'] = [
+			$result[] = [
+				'type' => 'nextsub',
 				'title' => '...',
 				'text' => '...',
 				'url' => str_replace('{PAGE}', -2, $url),
@@ -429,7 +443,8 @@ class Pagination {
 		}
 
 		if(($pages-($this->current+$this->right))>=1){
-			$result['last'] = [
+			$result[] = [
+				'type' => 'last',
 				'title' => $pages,
 				'text' => $pages,
 				'url' => str_replace('{PAGE}', $pages, $url),
@@ -439,7 +454,8 @@ class Pagination {
 		}
 
 		if($this->next && ($pages-$this->current)>0){
-			$result['next'] = [
+			$result[] = [
+				'type' => 'next',
 				'title' => ($this->current+1),
 				'text' => '>',
 				'url' => str_replace('{PAGE}', ($this->current+1), $url),
@@ -455,7 +471,8 @@ class Pagination {
 		$result = [];
 
 		if($this->prevprev && $this->current>1){
-			$result['first'] = [
+			$result[] = [
+				'type' => 'first',
 				'title' => 1,
 				'text' => '<<',
 				'url' => str_replace('{PAGE}', 1, $url),
@@ -465,7 +482,8 @@ class Pagination {
 		}
 
 		if($this->prev && $this->current>1){
-			$result['prev'] = [
+			$result[] = [
+				'type' => 'prev',
 				'title' => ($this->current-1),
 				'text' => '<',
 				'url' => str_replace('{PAGE}', ($this->current-1), $url),
@@ -480,7 +498,8 @@ class Pagination {
 				continue;
 			}
 
-			$result[$i] = [
+			$result[] = [
+				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
 				'url' => str_replace('{PAGE}', $i, $url),
@@ -490,7 +509,8 @@ class Pagination {
 		}
 
 		if($this->next && ($pages-$this->current)>0){
-			$result['next'] = [
+			$result[] = [
+				'type' => 'next',
 				'title' => ($this->current+1),
 				'text' => '>',
 				'url' => str_replace('{PAGE}', ($this->current+1), $url),
@@ -500,7 +520,8 @@ class Pagination {
 		}
 
 		if($this->nextnext && ($pages-$this->current)>0){
-			$result['last'] = [
+			$result[] = [
+				'type' => 'last',
 				'title' => $pages,
 				'text' => '>>',
 				'url' => str_replace('{PAGE}', $pages, $url),
@@ -519,7 +540,8 @@ class Pagination {
 			return $result;
 		}
 
-		$result['current'] = [
+		$result[] = [
+			'type' => 'current',
 			'title' => 'Load More',
 			'text' => 'Load More',
 			'url' => str_replace('{PAGE}', ($this->current+1), $url),
@@ -534,7 +556,8 @@ class Pagination {
 		$result = [];
 
 		if($this->prevprev && $this->current>1){
-			$result['first'] = [
+			$result[] = [
+				'type' => 'first',
 				'title' => 'First',
 				'text' => 'First',
 				'url' => str_replace('{PAGE}', 1, $url),
@@ -544,7 +567,8 @@ class Pagination {
 		}
 
 		if($this->prev && $this->current>1){
-			$result['prev'] = [
+			$result[] = [
+				'type' => 'prev',
 				'title' => 'Prev',
 				'text' => 'Prev',
 				'url' => str_replace('{PAGE}', ($this->current-1), $url),
@@ -554,7 +578,8 @@ class Pagination {
 		}
 
 		if($this->next && ($pages-$this->current)>0){
-			$result['next'] = [
+			$result[] = [
+				'type' => 'next',
 				'title' => 'Next',
 				'text' => 'Next',
 				'url' => str_replace('{PAGE}', ($this->current+1), $url),
@@ -564,7 +589,8 @@ class Pagination {
 		}
 
 		if($this->nextnext && ($pages-$this->current)>0){
-			$result['last'] = [
+			$result[] = [
+				'type' => 'last',
 				'title' => 'Last',
 				'text' => 'Last',
 				'url' => str_replace('{PAGE}', $pages, $url),
