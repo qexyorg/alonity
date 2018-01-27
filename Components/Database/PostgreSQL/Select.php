@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -510,11 +510,34 @@ class Select {
 			$result = "\"$order\"";
 		}else{
 			foreach($order as $k => $v){
-				$by = (strtolower($v)!='desc') ? 'ASC' : 'DESC';
 
-				$k = $this->changeQuotes($k);
+				if(!is_array($v)){
+					$by = (strtolower($v)!='desc') ? 'ASC' : 'DESC';
 
-				$result .= "$k $by,";
+					$k = $this->changeQuotes($k);
+
+					$result .= "$k $by,";
+				}else{
+					$by = (strtolower($v[0])!='desc') ? 'ASC' : 'DESC';
+
+					unset($v[0]);
+
+					$v = array_map(function($value){ return "'$value'"; }, $v);
+
+					$k = $this->changeQuotes($k);
+
+					$result .= "CASE";
+
+					$i = 1;
+
+					foreach($v as $iv){
+						$result .= " WHEN $k='$iv' THEN $i ";
+
+						$i++;
+					}
+
+					$result .= "ELSE $i END, $k $by,";
+				}
 			}
 
 			$result = mb_substr($result, 0, -1, 'UTF-8');

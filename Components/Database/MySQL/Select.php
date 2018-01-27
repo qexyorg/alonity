@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Database\MySQL;
@@ -493,12 +493,25 @@ class Select {
 		}
 
 		if(is_string($order)){
-			$result = "`$order`";
+			$result = $order;
 		}else{
 			foreach($order as $k => $v){
-				$by = (strtolower($v)!='desc') ? 'ASC' : 'DESC';
 
-				$result .= "$k $by,";
+				if(!is_array($v)){
+					$by = (strtolower($v)!='desc') ? 'ASC' : 'DESC';
+
+					$result .= "$k $by,";
+				}else{
+					$by = (strtolower($v[0])!='desc') ? 'ASC' : 'DESC';
+
+					unset($v[0]);
+
+					$v = array_map(function($value){ return "'$value'"; }, $v);
+
+					$props = implode(", ", $v);
+
+					$result .= "FIELD($k, $props) $by,";
+				}
 			}
 
 			$result = mb_substr($result, 0, -1, 'UTF-8');
