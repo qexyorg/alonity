@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 namespace Alonity\Router;
@@ -155,32 +155,34 @@ class Router extends Alonity {
 		$this->currentRoute['key'] = $this->currentKey;
 		if(isset($this->currentRoute['parent'])){
 			$this->currentRoute['baseClass'] = ucfirst(mb_strtolower($this->currentRoute['parent']));
+
+			$parent = $this->routes[$this->currentRoute['parent']];
 		}else{
 			$this->currentRoute['baseClass'] = ucfirst(mb_strtolower($this->currentKey));
 		}
 
 		if(!isset($this->currentRoute['model'])){
-			$this->currentRoute['model'] = $this->currentRoute['baseClass'];
+			$this->currentRoute['model'] = (isset($parent) && isset($parent['model'])) ? $parent['model'] : $this->currentRoute['baseClass'];
 		}
 
 		if(!isset($this->currentRoute['view'])){
-			$this->currentRoute['view'] = $this->currentRoute['baseClass'];
+			$this->currentRoute['view'] = (isset($parent) && isset($parent['view'])) ? $parent['view'] : $this->currentRoute['baseClass'];
 		}
 
 		if(!isset($this->currentRoute['controller'])){
-			$this->currentRoute['controller'] = $this->currentRoute['baseClass'];
+			$this->currentRoute['controller'] = (isset($parent) && isset($parent['controller'])) ? $parent['controller'] : $this->currentRoute['baseClass'];
 		}
 
 		if(!isset($this->currentRoute['modelFile'])){
-			$this->currentRoute['modelFile'] = $this->currentRoute['model'];
+			$this->currentRoute['modelFile'] = (isset($parent) && isset($parent['modelFile'])) ? $parent['modelFile'] : $this->currentRoute['model'];
 		}
 
 		if(!isset($this->currentRoute['viewFile'])){
-			$this->currentRoute['viewFile'] = $this->currentRoute['view'];
+			$this->currentRoute['viewFile'] = (isset($parent) && isset($parent['viewFile'])) ? $parent['viewFile'] : $this->currentRoute['view'];
 		}
 
 		if(!isset($this->currentRoute['controllerFile'])){
-			$this->currentRoute['controllerFile'] = $this->currentRoute['controller'];
+			$this->currentRoute['controllerFile'] = (isset($parent) && isset($parent['controllerFile'])) ? $parent['controllerFile'] : $this->currentRoute['controller'];
 		}
 
 		$this->currentRoute['modelClass'] = "{$this->currentRoute['model']}Model";
