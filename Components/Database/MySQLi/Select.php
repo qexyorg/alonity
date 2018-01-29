@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -28,7 +28,9 @@ class Select {
 
 	private $where = [];
 
-	private $limit = null;
+	private $limit = 0;
+
+	private $offset = 0;
 
 	private $order = null;
 
@@ -125,17 +127,29 @@ class Select {
 	/**
 	 * Выставляет ограничения возвращаемых результатов
 	 *
-	 * @param $limit array | integer
+	 * @param $limit integer
 	 *
 	 * @example 10 returned LIMIT 10
-	 * @example array(10, 20) returned LIMIT 10, 20
-	 *
-	 * @throws MySQLiSelectException
 	 *
 	 * @return \Alonity\Components\Database\MySQLi\Select()
 	 */
 	public function limit($limit){
 		$this->limit = $limit;
+
+		return $this;
+	}
+
+	/**
+	 * Выставляет смещение ограничения возвращаемого результата
+	 *
+	 * @param $offset integer
+	 *
+	 * @example 10 returned OFFSET 10
+	 *
+	 * @return \Alonity\Components\Database\MySQLi\Select()
+	 */
+	public function offset($offset){
+		$this->offset = $offset;
 
 		return $this;
 	}
@@ -466,27 +480,24 @@ class Select {
 	}
 
 	private function filterLimit($limit){
-		$result = "";
+		$limit = intval($limit);
 
 		if(empty($limit)){
-			return $result;
+			return "";
 		}
 
-		if(!is_array($limit) && !is_int($limit)){
-			throw new MySQLiSelectException("limit must be array or integer");
+		return "LIMIT $limit";
+	}
+
+	private function filterOffset($offset){
+
+		$offset = intval($offset);
+
+		if(empty($offset)){
+			return "";
 		}
 
-		if(is_array($limit)){
-			$num = intval(key($limit));
-			$offset = intval($limit[$num]);
-
-			$result = "LIMIT $num, $offset";
-		}else{
-			$limit = intval($limit);
-			$result = "LIMIT $limit";
-		}
-
-		return $result;
+		return "OFFSET $offset";
 	}
 
 	private function filterOrder($order){
@@ -560,7 +571,9 @@ class Select {
 
 		$limit = $this->filterLimit($this->limit);
 
-		return "SELECT $columns $from $join $where $group $order $limit";
+		$offset = $this->filterOffset($this->offset);
+
+		return "SELECT $columns $from $join $where $group $order $limit $offset";
 	}
 
 	/**

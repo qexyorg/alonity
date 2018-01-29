@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -34,7 +34,9 @@ class Update {
 
 	private $where = [];
 
-	private $limit = [];
+	private $limit = 0;
+
+	private $offset = 0;
 
 	public function __construct($obj){
 		$this->obj = $obj;
@@ -73,20 +75,27 @@ class Update {
 	/**
 	 * Ограничение кол-ва обновляемых строк
 	 *
-	 * @param $end integer
-	 * @param $offset integer
-	 *
-	 * @throws PostgreSQLUpdateException
+	 * @param $limit integer
 	 *
 	 * @return \Alonity\Components\Database\PostgreSQL\Update()
 	 */
-	public function limit($end, $offset=0){
-		$end = intval($end);
-		$offset = intval($offset);
+	public function limit($limit){
+		$this->limit = $limit;
 
-		if($end<=0){ return $this; }
+		return $this;
+	}
 
-		$this->limit = [$end, $offset];
+	/**
+	 * Выставляет смещение ограничения обновляемого результата
+	 *
+	 * @param $offset integer
+	 *
+	 * @example 10 returned OFFSET 10
+	 *
+	 * @return \Alonity\Components\Database\PostgreSQL\Update()
+	 */
+	public function offset($offset){
+		$this->offset = $offset;
 
 		return $this;
 	}
@@ -235,22 +244,25 @@ class Update {
 	}
 
 	private function filterLimit($limit){
-		if(empty($limit)){ return ""; }
 
-		if(!is_array($limit) || !isset($limit[1])){
-			throw new PostgreSQLUpdateException("limit must be array");
+		$limit = intval($limit);
+
+		if(empty($limit)){
+			return "";
 		}
 
-		$end = intval($limit[0]);
-		$offset = intval($limit[1]);
+		return "LIMIT $limit";
+	}
 
-		if($end<=0){ return ""; }
+	private function filterOffset($offset){
 
-		if($offset<=0){
-			$offset = 0;
+		$offset = intval($offset);
+
+		if(empty($offset)){
+			return "";
 		}
 
-		return "LIMIT $offset, $end";
+		return "OFFSET $offset";
 	}
 
 	public function getError(){
@@ -282,7 +294,9 @@ class Update {
 
 		$limit = $this->filterLimit($this->limit);
 
-		return "UPDATE $table $set $where $limit";
+		$offset = $this->filterOffset($this->offset);
+
+		return "UPDATE $table $set $where $limit $offset";
 	}
 
 	/**
