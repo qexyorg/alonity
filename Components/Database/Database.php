@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components;
@@ -21,6 +21,8 @@ class Database {
 
 	const WHERE_AND = 0x538;
 	const WHERE_OR = 0x539;
+
+	private static $queries = 0;
 
 	private static $options = [
 		'engine' => 'mysqli',
@@ -176,11 +178,21 @@ class Database {
 	}
 
 	/**
+	 * Возвращает кол-во запросов
+	 *
+	 * @return integer
+	*/
+	public static function getQueriesNum(){
+		return self::$queries;
+	}
+
+	/**
 	 * @return \Alonity\Components\Database\MySQLi\Select
 	 * @return \Alonity\Components\Database\MySQL\Select
 	 * @return \Alonity\Components\Database\PostgreSQL\Select
 	*/
 	public static function select(){
+		self::$queries++;
 		return self::getEngine()->select();
 	}
 
@@ -190,6 +202,7 @@ class Database {
 	 * @return \Alonity\Components\Database\PostgreSQL\Insert
 	 */
 	public static function insert(){
+		self::$queries++;
 		return self::getEngine()->insert();
 	}
 
@@ -199,6 +212,7 @@ class Database {
 	 * @return \Alonity\Components\Database\PostgreSQL\Update
 	 */
 	public static function update(){
+		self::$queries++;
 		return self::getEngine()->update();
 	}
 
@@ -208,6 +222,7 @@ class Database {
 	 * @return \Alonity\Components\Database\PostgreSQL\Delete
 	 */
 	public static function delete(){
+		self::$queries++;
 		return self::getEngine()->delete();
 	}
 
@@ -218,6 +233,7 @@ class Database {
 	 * @return resource
 	 */
 	public static function query($sql){
+		self::$queries++;
 		return self::getEngine()->query($sql);
 	}
 }

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -39,6 +39,8 @@ class Select {
 	private $columns = [];
 
 	private $group = [];
+
+	private $having = null;
 
 	private $result = false;
 
@@ -112,6 +114,29 @@ class Select {
 			'values' => $values,
 			'type' => $type
 		];
+
+		return $this;
+	}
+
+	/**
+	 * Выставляет условия группировки
+	 *
+	 * @param $value string
+	 *
+	 * @throws PostgreSQLSelectException
+	 *
+	 * @return \Alonity\Components\Database\PostgreSQL\Select()
+	 */
+	public function having($value){
+		if(empty($value)){
+			throw new PostgreSQLSelectException('having must be not empty');
+		}
+
+		if(!is_string($value)){
+			throw new PostgreSQLSelectException('from must be a string');
+		}
+
+		$this->having = $value;
 
 		return $this;
 	}
@@ -506,6 +531,14 @@ class Select {
 		return "OFFSET $offset";
 	}
 
+	private function filterHaving($having){
+		if(empty($having)){
+			return "";
+		}
+
+		return "HAVING $having";
+	}
+
 	private function filterOrder($order){
 
 		$result = "";
@@ -581,13 +614,15 @@ class Select {
 
 		$group = $this->filterGroup($this->group);
 
+		$having = $this->filterHaving($this->having);
+
 		$order = $this->filterOrder($this->order);
 
 		$limit = $this->filterLimit($this->limit);
 
 		$offset = $this->filterOffset($this->offset);
 
-		return "SELECT $columns $from $join $where $group $order $limit $offset";
+		return "SELECT $columns $from $join $where $group $having $order $limit $offset";
 	}
 
 	/**

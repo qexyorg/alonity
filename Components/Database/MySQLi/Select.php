@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -31,6 +31,8 @@ class Select {
 	private $limit = 0;
 
 	private $offset = 0;
+
+	private $having = null;
 
 	private $order = null;
 
@@ -82,6 +84,29 @@ class Select {
 		}
 
 		$this->from = $table;
+
+		return $this;
+	}
+
+	/**
+	 * Выставляет условия группировки
+	 *
+	 * @param $value string
+	 *
+	 * @throws MySQLiSelectException
+	 *
+	 * @return \Alonity\Components\Database\MySQLi\Select()
+	*/
+	public function having($value){
+		if(empty($value)){
+			throw new MySQLiSelectException('having must be not empty');
+		}
+
+		if(!is_string($value)){
+			throw new MySQLiSelectException('from must be a string');
+		}
+
+		$this->having = $value;
 
 		return $this;
 	}
@@ -500,6 +525,14 @@ class Select {
 		return "OFFSET $offset";
 	}
 
+	private function filterHaving($having){
+		if(empty($having)){
+			return "";
+		}
+
+		return "HAVING $having";
+	}
+
 	private function filterOrder($order){
 
 		$result = "";
@@ -567,13 +600,15 @@ class Select {
 
 		$group = $this->filterGroup($this->group);
 
+		$having = $this->filterHaving($this->having);
+
 		$order = $this->filterOrder($this->order);
 
 		$limit = $this->filterLimit($this->limit);
 
 		$offset = $this->filterOffset($this->offset);
 
-		return "SELECT $columns $from $join $where $group $order $limit $offset";
+		return "SELECT $columns $from $join $where $group $having $order $limit $offset";
 	}
 
 	/**
