@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 namespace Alonity\Components;
@@ -235,6 +235,15 @@ class Database {
 	public static function query($sql){
 		self::$queries++;
 		return self::getEngine()->query($sql);
+	}
+
+	/**
+	 * @param $string string
+	 *
+	 * @return string
+	 */
+	public static function safeSQL($string){
+		return self::getEngine()->safeSQL($string);
 	}
 }
 

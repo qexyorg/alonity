@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database;
@@ -211,6 +211,15 @@ class PostgreSQL {
 		if($obj===false){ return $obj; }
 
 		return pg_query($obj, $sql);
+	}
+
+	public function safeSQL($string){
+
+		$obj = $this->getObj();
+
+		if($obj===false){ return $obj; }
+
+		return pg_escape_string($obj, $string);
 	}
 
 	/**

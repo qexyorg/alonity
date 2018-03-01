@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Database;
@@ -203,6 +203,15 @@ class MySQL {
 		if($obj===false){ return $obj; }
 
 		return mysql_query($sql, $obj);
+	}
+
+	public function safeSQL($string){
+
+		$obj = $this->getObj();
+
+		if($obj===false){ return $obj; }
+
+		return mysqli_real_escape_string($obj, $string);
 	}
 
 	/**
