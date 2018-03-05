@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components\Filters;
@@ -126,15 +126,17 @@ class _Input {
 				return false; break;
 			}
 
-			$value = $this->data[$name];
+			$value = (isset($this->data[$name])) ? $this->data[$name] : $v['default'];
 
-			if($v['minlength']>0 && mb_strlen($value, 'UTF-8')<$v['minlength']){
-				$this->validation = "minimal length of \"$name\" is {$v['minlength']}";
-				return false; break;
-			}
+			if($value!='' || $v['required']){
+				if($v['minlength']>0 && mb_strlen($value, 'UTF-8')<$v['minlength']){
+					$this->validation = "minimal length of \"$name\" is {$v['minlength']}";
+					return false; break;
+				}
 
-			if($v['maxlength']>0 && mb_strlen($value, 'UTF-8')>$v['maxlength']){
-				$this->validation = "maximal length of \"$name\" is {$v['maxlength']}";
+				if($v['maxlength']>0 && mb_strlen($value, 'UTF-8')>$v['maxlength']){
+					$this->validation = "maximal length of \"$name\" is {$v['maxlength']}";
+				}
 			}
 		}
 

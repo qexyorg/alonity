@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace Alonity\Components\Filters;
@@ -64,7 +64,7 @@ class _String {
 	 *
 	 * @param $string string
 	 *
-	 * @return string
+	 * @return integer
 	*/
 	public static function length($string){
 		return mb_strlen($string, 'UTF-8');
@@ -76,7 +76,7 @@ class _String {
 	 * @param $string string
 	 * @param $needle string
 	 *
-	 * @return string
+	 * @return integer
 	 */
 	public static function pos($string, $needle){
 		return mb_strpos($string, $needle, 0, 'UTF-8');
@@ -109,16 +109,17 @@ class _String {
 	 * Преобразует символы в строке в латиницу
 	 *
 	 * @param $string string
+	 * @param $except_to string
 	 *
 	 * @return string
 	*/
-	public static function toLatin($string){
+	public static function toLatin($string, $except_to='-'){
 
 		foreach(self::$symbols as $lang => $symbol){
 			$string = strtr($string, $symbol);
 		}
 
-		return preg_replace('/[^a-zA-Z0-9_]/iu', '_', $string);
+		return preg_replace('/[^a-zA-Z0-9-]/iu', $except_to, $string);
 	}
 
 	/**
