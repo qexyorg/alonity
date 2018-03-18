@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 namespace Alonity\Model;
@@ -110,18 +110,21 @@ class Model {
 	 * Возвращает экземпляр класса модели по имени
 	 *
 	 * @param $name string
+	 * @param $file string
 	 *
 	 * @throws ModelException
 	 *
 	 * @return object
 	*/
-	public function getOtherModel($name){
+	public function getOtherModel($name, $file=''){
 
 		$key = md5($name);
 
 		if(isset($this->cache[$key])){ return $this->cache[$key]; }
 
-		$filename = "{$this->alonity->getRoot()}/Applications/{$this->alonity->getAppKey()}/Models/{$name}.php";
+		$file = (!empty($file)) ? $file : "{$name}.php";
+
+		$filename = "{$this->alonity->getRoot()}/Applications/{$this->alonity->getAppKey()}/Models/{$file}";
 
 		require_once($filename);
 
