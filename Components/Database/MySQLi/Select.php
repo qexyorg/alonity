@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.4.0
+ * @version 1.4.1
  */
 
 namespace Alonity\Components\Database\MySQLi;
@@ -421,7 +421,7 @@ class Select {
 
 	private function filterFrom($from){
 		if(empty($from)){
-			throw new MySQLiSelectException("from must be not empty");
+			return '';
 		}
 
 		if(is_array($from)){
