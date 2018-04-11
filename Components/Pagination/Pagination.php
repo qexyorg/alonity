@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace Alonity\Components;
@@ -396,7 +396,7 @@ class Pagination {
 				continue;
 			}
 
-			$result[$i] = [
+			$result[] = [
 				'type' => 'simple',
 				'title' => $i,
 				'text' => $i,
