@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Cache;
@@ -16,6 +16,8 @@ namespace Alonity\Components\Cache;
 class RedisCacheException extends \Exception {}
 
 class Redis {
+
+	private $local = [];
 
 	public function setOptions($options){
 		$this->options = array_merge($this->options, $options);
@@ -89,13 +91,21 @@ class Redis {
 	public function get($key){
 		$key = $this->makeKey($key);
 
+		if(isset($this->local[$key])){
+			return $this->local[$key];
+		}
+
 		$get = $this->getRedis()->hGet($this->options['key'], $key);
 
 		if($get===false){
 			throw new RedisCacheException("Redis get return false");
 		}
 
-		return json_decode($get, true);
+		$result = json_decode($get, true);
+
+		$this->local[$key] = $result;
+
+		return $result;
 	}
 
 	/**
@@ -119,13 +129,24 @@ class Redis {
 
 		foreach($keys as $key){
 
-			$get = $redis->hGet($this->options['key'], $this->makeKey($key));
+			$key = $this->makeKey($key);
+
+			if(isset($this->local[$key])){
+				$result[$key] = $this->local[$key];
+				continue;
+			}
+
+			$get = $redis->hGet($this->options['key'], $key);
 
 			if($get===false){
 				continue;
 			}
 
-			$result[$key] = json_decode($get, true);
+			$res = json_decode($get, true);
+
+			$this->local[$key] = $res;
+
+			$result[$key] = $res;
 		}
 
 		return $result;
@@ -149,6 +170,8 @@ class Redis {
 			throw new \RedisException("Redis method hSet return false");
 		}
 
+		$this->local[$key] = $value;
+
 		return $value;
 	}
 
@@ -169,17 +192,17 @@ class Redis {
 			return $result;
 		}
 
-		$array = [];
-
 		foreach($params as $k => $v){
 
-			$array[$k] = json_encode($v);
+			$key = self::makeKey($k);
 
-			$result[$k] = $v;
-		}
+			if($this->getRedis()->hSet($this->options['key'], $key, json_encode($v))===false){
+				throw new \RedisException("Redis method hSet return false");
+			}
 
-		if($this->getRedis()->hMset($this->makeKey($k), $array)===false){
-			throw new \RedisException("Redis hMset return false");
+			$result[$key] = $v;
+
+			$this->local[$key] = $v;
 		}
 
 		return $result;
@@ -194,7 +217,13 @@ class Redis {
 	 */
 	public function remove($key){
 
-		if($this->getRedis()->hDel($this->options['key'], $this->makeKey($key))===false){
+		$key = $this->makeKey($key);
+
+		if(isset($this->local[$key])){
+			unset($this->local[$key]);
+		}
+
+		if($this->getRedis()->hDel($this->options['key'], $key)===false){
 			return false;
 		}
 
@@ -215,7 +244,14 @@ class Redis {
 		$result = [];
 
 		foreach($keys as $key){
-			if($redis->hDel($this->options['key'], $this->makeKey($key))===false){
+
+			$key = $this->makeKey($key);
+
+			if(isset($this->local[$key])){
+				unset($this->local[$key]);
+			}
+
+			if($redis->hDel($this->options['key'], $key)===false){
 				continue;
 			}
 

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Cache;
@@ -16,6 +16,8 @@ namespace Alonity\Components\Cache;
 class MemcacheCacheException extends \Exception {}
 
 class Memcache {
+
+	private $local = [];
 
 	public function setOptions($options){
 		$this->options = array_merge($this->options, $options);
@@ -77,9 +79,13 @@ class Memcache {
 	 */
 	public function set($key, $value){
 
-		if($this->getMemcache()->set($this->makeKey($key), json_encode($value))===false){
+		$key = $this->makeKey($key);
+
+		if($this->getMemcache()->set($key, json_encode($value))===false){
 			throw new MemcacheCacheException("Memcache set return false");
 		}
+
+		$this->local[$key] = $value;
 
 		return $value;
 	}
@@ -105,9 +111,13 @@ class Memcache {
 
 		foreach($params as $k => $v){
 
-			if($memcache->set($this->makeKey($k), json_encode($v))===false){
+			$key = $this->makeKey($k);
+
+			if($memcache->set($key, json_encode($v))===false){
 				throw new MemcacheCacheException("Memcache set return false");
 			}
+
+			$this->local[$key] = $v;
 
 			$result[$k] = $v;
 		}
@@ -127,13 +137,21 @@ class Memcache {
 	public function get($key){
 		$key = $this->makeKey($key);
 
+		if(isset($this->local[$key])){
+			return $this->local[$key];
+		}
+
 		$get = $this->getMemcache()->get($key);
 
 		if($get===false){
 			throw new MemcacheCacheException("Memcache get return false");
 		}
 
-		return json_decode($get, true);
+		$result = json_decode($get, true);
+
+		$this->local[$key] = $result;
+
+		return $result;
 	}
 
 	/**
@@ -156,13 +174,25 @@ class Memcache {
 		$memcache = $this->getMemcache();
 
 		foreach($keys as $key){
-			$get = $memcache->get($this->makeKey($key));
+
+			$k = $this->makeKey($key);
+
+			if(isset($this->local[$k])){
+				$result[$k] = $this->local[$k];
+				continue;
+			}
+
+			$get = $memcache->get($k);
 
 			if($get===false){
 				throw new MemcacheCacheException("Memcache get return false");
 			}
 
-			$result[$key] = json_decode($get, true);
+			$res = json_decode($get, true);
+
+			$this->local[$k] = $res;
+
+			$result[$k] = $res;
 
 		}
 
@@ -178,6 +208,10 @@ class Memcache {
 	 */
 	public function remove($key){
 		$key = $this->makeKey($key);
+
+		if(isset($this->local[$key])){
+			unset($this->local[$key]);
+		}
 
 		if($this->getMemcache()->delete($key)===false){
 			return false;
@@ -200,7 +234,13 @@ class Memcache {
 		$result = [];
 
 		foreach($keys as $key){
-			if($memcache->delete($this->makeKey($key))===false){
+			$key = $this->makeKey($key);
+
+			if(isset($this->local[$key])){
+				unset($this->local[$key]);
+			}
+
+			if($memcache->delete($key)===false){
 				continue;
 			}
 

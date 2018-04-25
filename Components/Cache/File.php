@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace Alonity\Components\Cache;
@@ -22,6 +22,8 @@ class File {
 	];
 
 	private $rootDir = null;
+
+	private $local = [];
 
 	public function setOptions($options){
 		$this->options = array_replace_recursive($this->options, $options);
@@ -48,6 +50,14 @@ class File {
 		return $this->rootDir;
 	}
 
+	public function getTime($key){
+		$key = $this->makeKey($key);
+
+		if(!isset($this->local[$key])){ $this->get($key); }
+
+		return $this->local[$key]['time'];
+	}
+
 	/**
 	 * Возвращает кэшируемое значение из файлового хранилища
 	 *
@@ -58,15 +68,23 @@ class File {
 	public function get($key){
 		$key = $this->makeKey($key);
 
+		if(isset($this->local[$key])){ return $this->local[$key]['cache']; }
+
 		$filename = $this->getRoot().$this->options['path'].'/'.$key.'.php';
 
 		$cache = null;
+		$time = time();
 
 		if(!file_exists($filename)){
 			return $cache;
 		}
 
 		include($filename);
+
+		$this->local[$key] = [
+			'cache' => $cache,
+			'time' => $time
+		];
 
 		return $cache;
 	}
@@ -91,10 +109,17 @@ class File {
 		$filepath = $this->getRoot().$this->options['path'].'/';
 
 		$cache = null;
+		$time = time();
 
 		foreach($keys as $key){
 
-			$filename = $filepath.$this->makeKey($key).'.php';
+			$k = $this->makeKey($key);
+
+			$filename = $filepath.$k.'.php';
+
+			if(isset($this->local[$k])){
+				$result[$k] = $this->local[$k]['cache'];
+			}
 
 			if(!file_exists($filename)){
 				continue;
@@ -102,7 +127,12 @@ class File {
 
 			include($filename);
 
-			$result[$key] = $cache;
+			$this->local[$k] = [
+				'cache' => $cache,
+				'time' => $time
+			];
+
+			$result[$k] = $cache;
 		}
 
 		return $result;
@@ -124,8 +154,11 @@ class File {
 
 		$filepath = $this->getRoot().$this->options['path'];
 
+		$time = time();
+
 		$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL.PHP_EOL;
 		$data .= '$cache = '.var_export($value, true).';'.PHP_EOL.PHP_EOL;
+		$data .= '$time = '.$time.';'.PHP_EOL.PHP_EOL;
 		$data .= '?>';
 
 		if(!file_exists($filepath)){ mkdir($filepath, 0755, true); }
@@ -133,6 +166,11 @@ class File {
 		$filename = "{$filepath}/{$key}.php";
 
 		file_put_contents($filename, $data);
+
+		$this->local[$key] = [
+			'cache' => $value,
+			'time' => $time
+		];
 
 		return $value;
 	}
@@ -156,10 +194,14 @@ class File {
 
 		$filepath = $this->getRoot().$this->options['path'];
 
+		$time = time();
+		$date = date("d.m.Y H:i:s");
+
 		foreach($params as $k => $v){
 
-			$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL.PHP_EOL;
+			$data = '<?php // Last update: '.$date.PHP_EOL.PHP_EOL;
 			$data .= '$cache = '.var_export($v, true).';'.PHP_EOL.PHP_EOL;
+			$data .= '$time = '.$time.';'.PHP_EOL.PHP_EOL;
 			$data .= '?>';
 
 			$key = $this->makeKey($k);
@@ -168,7 +210,12 @@ class File {
 
 			file_put_contents($filename, $data);
 
-			$result[$k] = $v;
+			$this->local[$key] = [
+				'cache' => $v,
+				'time' => $time
+			];
+
+			$result[$key] = $v;
 		}
 
 		return $result;
@@ -187,11 +234,13 @@ class File {
 
 		$filename = $this->getRoot().$this->options['path'].'/'.$key.'.php';
 
-		if(!file_exists($filename)){
-			return false;
+		if(isset($this->local[$key])){
+			unset($this->local[$key]);
 		}
 
-		@unlink($filename);
+		if(file_exists($filename)){
+			@unlink($filename);
+		}
 
 		return true;
 	}
@@ -211,7 +260,13 @@ class File {
 
 		foreach($keys as $k){
 
-			$filename = $filepath.'/'.$this->makeKey($k).'.php';
+			$key = $this->makeKey($k);
+
+			$filename = $filepath.'/'.$key.'.php';
+
+			if(isset($this->local[$k])){
+				unset($this->local[$key]);
+			}
 
 			if(!file_exists($filename)){
 				continue;
