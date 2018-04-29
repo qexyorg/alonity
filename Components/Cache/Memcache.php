@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.1
+ * @version 1.3.0
  */
 
 namespace Alonity\Components\Cache;
@@ -74,16 +74,19 @@ class Memcache {
 	 * @param $key mixed
 	 * @param $value mixed
 	 * @param $expire integer | null
+	 * @param $path string | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return mixed
 	 */
-	public function set($key, $value, $expire=null){
+	public function set($key, $value, $expire=null, $path=null){
 
 		if(is_null($expire)){ $expire = $this->options['expire']; }
 
-		$key = $this->makeKey($key);
+		if(is_null($path)){ $path = 'alonitycache:'; }
+
+		$key = $path.$this->makeKey($key);
 
 		if($this->getMemcache()->set($key, json_encode($value), $expire)===false){
 			throw new MemcacheCacheException("Memcache set return false");
@@ -99,12 +102,13 @@ class Memcache {
 	 *
 	 * @param $params array
 	 * @param $expire integer | null
+	 * @param $path string | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return mixed
 	 */
-	public function setMultiple($params, $expire=null){
+	public function setMultiple($params, $expire=null, $path=null){
 
 		$result = [];
 
@@ -114,11 +118,13 @@ class Memcache {
 
 		if(is_null($expire)){ $expire = $this->options['expire']; }
 
+		if(is_null($path)){ $path = 'alonitycache:'; }
+
 		$memcache = $this->getMemcache();
 
 		foreach($params as $k => $v){
 
-			$key = $this->makeKey($k);
+			$key = $path.$this->makeKey($k);
 
 			if($memcache->set($key, json_encode($v), $expire)===false){
 				throw new MemcacheCacheException("Memcache set return false");
@@ -136,13 +142,17 @@ class Memcache {
 	 * Возвращает кэшируемое значение из хранилища Memcache
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return mixed
 	 */
-	public function get($key){
-		$key = $this->makeKey($key);
+	public function get($key, $path=null){
+
+		if(is_null($path)){ $path = 'alonitycache:'; }
+
+		$key = $path.$this->makeKey($key);
 
 		if(isset($this->local[$key])){
 			return $this->local[$key];
@@ -163,12 +173,13 @@ class Memcache {
 	 * Возвращает кэшируемые значения из хранилища Memcache, используя массив ключей
 	 *
 	 * @param $keys array
+	 * @param $path string | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return array
 	 */
-	public function getMultiple($keys){
+	public function getMultiple($keys, $path=null){
 
 		$result = [];
 
@@ -176,11 +187,13 @@ class Memcache {
 			return $result;
 		}
 
+		if(is_null($path)){ $path = 'alonitycache:'; }
+
 		$memcache = $this->getMemcache();
 
 		foreach($keys as $key){
 
-			$k = $this->makeKey($key);
+			$k = $path.$this->makeKey($key);
 
 			if(isset($this->local[$k])){
 				$result[$k] = $this->local[$k];
@@ -208,11 +221,15 @@ class Memcache {
 	 * Удаляет кэшируемое значение из хранилища Memcache
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @return boolean
 	 */
-	public function remove($key){
-		$key = $this->makeKey($key);
+	public function remove($key, $path=null){
+
+		if(is_null($path)){ $path = 'alonitycache:'; }
+
+		$key = $path.$this->makeKey($key);
 
 		if(isset($this->local[$key])){
 			unset($this->local[$key]);
@@ -229,17 +246,20 @@ class Memcache {
 	 * Удаляет кэшируемые значения из хранилища Memcache, используя массив ключей
 	 *
 	 * @param $keys mixed
+	 * @param $path string | null
 	 *
 	 * @return array
 	 */
-	public function removeMultiple($keys){
+	public function removeMultiple($keys, $path=null){
 
 		$memcache = $this->getMemcache();
+
+		if(is_null($path)){ $path = 'alonitycache:'; }
 
 		$result = [];
 
 		foreach($keys as $key){
-			$key = $this->makeKey($key);
+			$key = $path.$this->makeKey($key);
 
 			if(isset($this->local[$key])){
 				unset($this->local[$key]);

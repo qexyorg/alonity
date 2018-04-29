@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 namespace Alonity\Components\Cache;
@@ -62,15 +62,21 @@ class File {
 	 * Возвращает кэшируемое значение из файлового хранилища
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @return mixed
 	 */
-	public function get($key){
+	public function get($key, $path=null){
+
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
 		$key = $this->makeKey($key);
 
 		if(isset($this->local[$key])){ return $this->local[$key]['cache']; }
 
-		$filename = $this->getRoot().$this->options['path'].'/'.$key.'.php';
+		$filename = $this->getRoot().$path.'/'.$key.'.php';
 
 		$cache = null;
 		$time = time();
@@ -80,6 +86,11 @@ class File {
 		}
 
 		include($filename);
+
+		if(isset($expire) && $expire<=$time){
+			@unlink($filename);
+			return null;
+		}
 
 		$this->local[$key] = [
 			'cache' => $cache,
@@ -93,12 +104,13 @@ class File {
 	 * Возвращает кэшируемые значения из файлового хранилища, используя массив ключей
 	 *
 	 * @param $keys array
+	 * @param $path string | null
 	 *
 	 * @throws FileCacheException
 	 *
 	 * @return array
 	 */
-	public function getMultiple($keys){
+	public function getMultiple($keys, $path=null){
 
 		$result = [];
 
@@ -106,7 +118,11 @@ class File {
 			return $result;
 		}
 
-		$filepath = $this->getRoot().$this->options['path'].'/';
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
+		$filepath = $this->getRoot().$path.'/';
 
 		$cache = null;
 		$time = time();
@@ -127,6 +143,11 @@ class File {
 
 			include($filename);
 
+			if(isset($expire) && $expire<=$time){
+				@unlink($filename);
+				continue;
+			}
+
 			$this->local[$k] = [
 				'cache' => $cache,
 				'time' => $time
@@ -143,22 +164,29 @@ class File {
 	 *
 	 * @param $key mixed
 	 * @param $value mixed
+	 * @param $expire integer | null
+	 * @param $path string | null
 	 *
 	 * @throws FileCacheException
 	 *
 	 * @return mixed
 	 */
-	public function set($key, $value){
+	public function set($key, $value, $expire=null, $path=null){
+
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
 
 		$key = $this->makeKey($key);
 
-		$filepath = $this->getRoot().$this->options['path'];
+		$filepath = $this->getRoot().$path;
 
 		$time = time();
 
 		$data = '<?php // Last update: '.date("d.m.Y H:i:s").PHP_EOL.PHP_EOL;
 		$data .= '$cache = '.var_export($value, true).';'.PHP_EOL.PHP_EOL;
 		$data .= '$time = '.$time.';'.PHP_EOL.PHP_EOL;
+		$data .= '$expire = '.($time+$expire).';'.PHP_EOL.PHP_EOL;
 		$data .= '?>';
 
 		if(!file_exists($filepath)){ mkdir($filepath, 0755, true); }
@@ -179,12 +207,14 @@ class File {
 	 * Кэширует значения в файловое хранилище, используя ассоциотивный массив
 	 *
 	 * @param $params array
+	 * @param $expire integer | null
+	 * @param $path string | null
 	 *
 	 * @throws FileCacheException
 	 *
 	 * @return array
 	 */
-	public function setMultiple($params){
+	public function setMultiple($params, $expire=null, $path=null){
 
 		$result = [];
 
@@ -192,7 +222,11 @@ class File {
 			return $result;
 		}
 
-		$filepath = $this->getRoot().$this->options['path'];
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
+		$filepath = $this->getRoot().$path;
 
 		$time = time();
 		$date = date("d.m.Y H:i:s");
@@ -202,6 +236,7 @@ class File {
 			$data = '<?php // Last update: '.$date.PHP_EOL.PHP_EOL;
 			$data .= '$cache = '.var_export($v, true).';'.PHP_EOL.PHP_EOL;
 			$data .= '$time = '.$time.';'.PHP_EOL.PHP_EOL;
+			$data .= '$expire = '.($time+$expire).';'.PHP_EOL.PHP_EOL;
 			$data .= '?>';
 
 			$key = $this->makeKey($k);
@@ -225,14 +260,19 @@ class File {
 	 * Удаляет кэшируемое значение из файлового хранилища
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @return boolean
 	 */
-	public function remove($key){
+	public function remove($key, $path=null){
+
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
 
 		$key = $this->makeKey($key);
 
-		$filename = $this->getRoot().$this->options['path'].'/'.$key.'.php';
+		$filename = $this->getRoot().$path.'/'.$key.'.php';
 
 		if(isset($this->local[$key])){
 			unset($this->local[$key]);
@@ -249,12 +289,17 @@ class File {
 	 * Удаляет кэшируемые значения из файлового хранилища, используя массив ключей
 	 *
 	 * @param $keys array
+	 * @param $path string | null
 	 *
 	 * @return array
 	 */
-	public function removeMultiple($keys){
+	public function removeMultiple($keys, $path=null){
 
-		$filepath = $this->getRoot().$this->options['path'];
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
+		$filepath = $this->getRoot().$path;
 
 		$result = [];
 
@@ -283,11 +328,17 @@ class File {
 	/**
 	 * Очищает файловое хранилище хранилище. Возвращает кол-во удаленных ключей
 	 *
+	 * @param $path string | null
+	 *
 	 * @return integer
 	 */
-	public function clear(){
+	public function clear($path=null){
 
-		$filepath = $this->getRoot().$this->options['path'];
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
+		$filepath = $this->getRoot().$path;
 
 		$num = 0;
 
