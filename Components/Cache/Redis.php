@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 namespace Alonity\Components\Cache;
@@ -84,19 +84,22 @@ class Redis {
 	 * Возвращает кэшируемое значение из хранилища Redis
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @throws RedisCacheException
 	 *
 	 * @return mixed
 	 */
-	public function get($key){
+	public function get($key, $path=null){
 		$key = $this->makeKey($key);
 
 		if(isset($this->local[$key])){
 			return $this->local[$key];
 		}
 
-		$get = $this->getRedis()->hGet($this->options['key'], $key);
+		if(is_null($path)){ $path = $this->options['key']; }
+
+		$get = $this->getRedis()->hGet($path, $key);
 
 		if($get===false){
 			return null;
@@ -113,18 +116,21 @@ class Redis {
 	 * Возвращает кэшируемые значения из хранилища Redis, используя массив ключей
 	 *
 	 * @param $keys array
+	 * @param $path string | null
 	 *
 	 * @throws RedisCacheException
 	 *
 	 * @return array
 	 */
-	public function getMultiple($keys){
+	public function getMultiple($keys, $path=null){
 
 		$result = [];
 
 		if(!is_array($keys) || empty($keys)){
 			return $result;
 		}
+
+		if(is_null($path)){ $path = $this->options['key']; }
 
 		$redis = $this->getRedis();
 
@@ -137,7 +143,7 @@ class Redis {
 				continue;
 			}
 
-			$get = $redis->hGet($this->options['key'], $key);
+			$get = $redis->hGet($path, $key);
 
 			if($get===false){
 				continue;
@@ -159,24 +165,25 @@ class Redis {
 	 * @param $key mixed
 	 * @param $value mixed
 	 * @param $expire integer | null
+	 * @param $path string | null
 	 *
 	 * @throws \RedisException
 	 *
 	 * @return mixed
 	 */
-	public function set($key, $value, $expire=null){
+	public function set($key, $value, $expire=null, $path=null){
 
 		if(is_null($expire)){ $expire = $this->options['expire']; }
 
+		if(is_null($path)){ $path = $this->options['key']; }
+
 		$key = self::makeKey($key);
 
-		if($this->getRedis()->hSet($this->options['key'], $key, json_encode($value))===false){
+		if($this->getRedis()->hSet($path, $key, json_encode($value))===false){
 			throw new \RedisException("Redis method hSet return false");
 		}
 
-		if($expire>0){
-			$this->getRedis()->setTimeout($this->options['key'].':'.$key, $expire);
-		}
+		if($expire>0){ $this->getRedis()->setTimeout($path, $expire); }
 
 		$this->local[$key] = $value;
 
@@ -188,12 +195,13 @@ class Redis {
 	 *
 	 * @param $params array
 	 * @param $expire integer | null
+	 * @param $path integer | null
 	 *
 	 * @throws \RedisException
 	 *
 	 * @return array
 	 */
-	public function setMultiple($params, $expire=null){
+	public function setMultiple($params, $expire=null, $path=null){
 
 		$result = [];
 
@@ -203,17 +211,17 @@ class Redis {
 
 		if(is_null($expire)){ $expire = $this->options['expire']; }
 
+		if(is_null($path)){ $path = $this->options['key']; }
+
 		foreach($params as $k => $v){
 
 			$key = self::makeKey($k);
 
-			if($this->getRedis()->hSet($this->options['key'], $key, json_encode($v))===false){
+			if($this->getRedis()->hSet($path, $key, json_encode($v))===false){
 				throw new \RedisException("Redis method hSet return false");
 			}
 
-			if($expire>0){
-				$this->getRedis()->setTimeout($this->options['key'].':'.$key, $expire);
-			}
+			if($expire>0){ $this->getRedis()->setTimeout($path, $expire); }
 
 			$result[$key] = $v;
 
@@ -227,10 +235,11 @@ class Redis {
 	 * Удаляет кэшируемое значение из хранилища Redis
 	 *
 	 * @param $key mixed
+	 * @param $path string | null
 	 *
 	 * @return boolean
 	 */
-	public function remove($key){
+	public function remove($key, $path=null){
 
 		$key = $this->makeKey($key);
 
@@ -238,7 +247,9 @@ class Redis {
 			unset($this->local[$key]);
 		}
 
-		if($this->getRedis()->hDel($this->options['key'], $key)===false){
+		if(is_null($path)){ $path = $this->options['key']; }
+
+		if($this->getRedis()->hDel($path, $key)===false){
 			return false;
 		}
 
@@ -249,12 +260,15 @@ class Redis {
 	 * Удаляет кэшируемые значения из хранилища Redis, используя массив ключей
 	 *
 	 * @param $keys array
+	 * @param $path string | null
 	 *
 	 * @return array
 	 */
-	public function removeMultiple($keys){
+	public function removeMultiple($keys, $path=null){
 
 		$redis = $this->getRedis();
+
+		if(is_null($path)){ $path = $this->options['key']; }
 
 		$result = [];
 
@@ -266,7 +280,7 @@ class Redis {
 				unset($this->local[$key]);
 			}
 
-			if($redis->hDel($this->options['key'], $key)===false){
+			if($redis->hDel($path, $key)===false){
 				continue;
 			}
 
@@ -279,11 +293,15 @@ class Redis {
 	/**
 	 * Очищает хранилище Redis. Возвращает кол-во удаленных ключей
 	 *
+	 * @param $path string | null
+	 *
 	 * @return integer
 	 */
-	public function clear(){
+	public function clear($path=null){
 
-		$delete = $this->getRedis()->del($this->options['key']);
+		if(is_null($path)){ $path = $this->options['key']; }
+
+		$delete = $this->getRedis()->del($path);
 
 		return ($delete===false) ? 0 : intval($delete);
 	}
