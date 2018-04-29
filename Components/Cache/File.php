@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 namespace Alonity\Components\Cache;
@@ -50,12 +50,17 @@ class File {
 		return $this->rootDir;
 	}
 
-	public function getTime($key){
+	public function getTime($key, $path=null){
+
+		if(is_null($path)){ $path = $this->options['path']; }
+
+		$path = str_replace(':', '/', $path);
+
 		$key = $this->makeKey($key);
 
-		if(!isset($this->local[$key])){ $this->get($key); }
+		if(!isset($this->local[$path.$key])){ $this->get($key, $path); }
 
-		return $this->local[$key]['time'];
+		return $this->local[$path.$key]['time'];
 	}
 
 	/**
@@ -74,7 +79,7 @@ class File {
 
 		$key = $this->makeKey($key);
 
-		if(isset($this->local[$key])){ return $this->local[$key]['cache']; }
+		if(isset($this->local[$path.$key])){ return $this->local[$path.$key]['cache']; }
 
 		$filename = $this->getRoot().$path.'/'.$key.'.php';
 
@@ -92,7 +97,7 @@ class File {
 			return null;
 		}
 
-		$this->local[$key] = [
+		$this->local[$path.$key] = [
 			'cache' => $cache,
 			'time' => $time
 		];
@@ -133,8 +138,8 @@ class File {
 
 			$filename = $filepath.$k.'.php';
 
-			if(isset($this->local[$k])){
-				$result[$k] = $this->local[$k]['cache'];
+			if(isset($this->local[$path.$k])){
+				$result[$k] = $this->local[$path.$k]['cache'];
 			}
 
 			if(!file_exists($filename)){
@@ -148,12 +153,12 @@ class File {
 				continue;
 			}
 
-			$this->local[$k] = [
+			$this->local[$path.$k] = [
 				'cache' => $cache,
 				'time' => $time
 			];
 
-			$result[$k] = $cache;
+			$result[$path.$k] = $cache;
 		}
 
 		return $result;
@@ -195,7 +200,7 @@ class File {
 
 		file_put_contents($filename, $data);
 
-		$this->local[$key] = [
+		$this->local[$path.$key] = [
 			'cache' => $value,
 			'time' => $time
 		];
@@ -245,12 +250,12 @@ class File {
 
 			file_put_contents($filename, $data);
 
-			$this->local[$key] = [
+			$this->local[$path.$key] = [
 				'cache' => $v,
 				'time' => $time
 			];
 
-			$result[$key] = $v;
+			$result[$path.$key] = $v;
 		}
 
 		return $result;
@@ -274,8 +279,8 @@ class File {
 
 		$filename = $this->getRoot().$path.'/'.$key.'.php';
 
-		if(isset($this->local[$key])){
-			unset($this->local[$key]);
+		if(isset($this->local[$path.$key])){
+			unset($this->local[$path.$key]);
 		}
 
 		if(file_exists($filename)){
@@ -309,8 +314,8 @@ class File {
 
 			$filename = $filepath.'/'.$key.'.php';
 
-			if(isset($this->local[$k])){
-				unset($this->local[$key]);
+			if(isset($this->local[$path.$k])){
+				unset($this->local[$path.$key]);
 			}
 
 			if(!file_exists($filename)){

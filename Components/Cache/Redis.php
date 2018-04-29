@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 namespace Alonity\Components\Cache;
@@ -91,13 +91,14 @@ class Redis {
 	 * @return mixed
 	 */
 	public function get($key, $path=null){
-		$key = $this->makeKey($key);
-
-		if(isset($this->local[$key])){
-			return $this->local[$key];
-		}
 
 		if(is_null($path)){ $path = $this->options['key']; }
+
+		$key = $this->makeKey($key);
+
+		if(isset($this->local[$path.$key])){
+			return $this->local[$path.$key];
+		}
 
 		$get = $this->getRedis()->hGet($path, $key);
 
@@ -107,7 +108,7 @@ class Redis {
 
 		$result = json_decode($get, true);
 
-		$this->local[$key] = $result;
+		$this->local[$path.$key] = $result;
 
 		return $result;
 	}
@@ -138,8 +139,8 @@ class Redis {
 
 			$key = $this->makeKey($key);
 
-			if(isset($this->local[$key])){
-				$result[$key] = $this->local[$key];
+			if(isset($this->local[$path.$key])){
+				$result[$path.$key] = $this->local[$path.$key];
 				continue;
 			}
 
@@ -151,9 +152,9 @@ class Redis {
 
 			$res = json_decode($get, true);
 
-			$this->local[$key] = $res;
+			$this->local[$path.$key] = $res;
 
-			$result[$key] = $res;
+			$result[$path.$key] = $res;
 		}
 
 		return $result;
@@ -185,7 +186,7 @@ class Redis {
 
 		if($expire>0){ $this->getRedis()->setTimeout($path, $expire); }
 
-		$this->local[$key] = $value;
+		$this->local[$path.$key] = $value;
 
 		return $value;
 	}
@@ -223,9 +224,9 @@ class Redis {
 
 			if($expire>0){ $this->getRedis()->setTimeout($path, $expire); }
 
-			$result[$key] = $v;
+			$result[$path.$key] = $v;
 
-			$this->local[$key] = $v;
+			$this->local[$path.$key] = $v;
 		}
 
 		return $result;
@@ -243,11 +244,11 @@ class Redis {
 
 		$key = $this->makeKey($key);
 
-		if(isset($this->local[$key])){
-			unset($this->local[$key]);
-		}
-
 		if(is_null($path)){ $path = $this->options['key']; }
+
+		if(isset($this->local[$path.$key])){
+			unset($this->local[$path.$key]);
+		}
 
 		if($this->getRedis()->hDel($path, $key)===false){
 			return false;
@@ -276,8 +277,8 @@ class Redis {
 
 			$key = $this->makeKey($key);
 
-			if(isset($this->local[$key])){
-				unset($this->local[$key]);
+			if(isset($this->local[$path.$key])){
+				unset($this->local[$path.$key]);
 			}
 
 			if($redis->hDel($path, $key)===false){
@@ -301,7 +302,15 @@ class Redis {
 
 		if(is_null($path)){ $path = $this->options['key']; }
 
+		$pathlen = mb_strlen($path, 'UTF-8');
+
 		$delete = $this->getRedis()->del($path);
+
+		foreach($this->local as $k => $v){
+			if(mb_substr($k, 0, ($pathlen-1), 'UTF-8')==$path){
+				unset($this->local[$k]);
+			}
+		}
 
 		return ($delete===false) ? 0 : intval($delete);
 	}
