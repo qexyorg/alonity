@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 namespace Alonity\Components\Cache;
@@ -26,7 +26,8 @@ class Memcache {
 	private $options = [
 		'host' => '127.0.0.1',
 		'port' => 11211,
-		'timeout' => 3
+		'timeout' => 3,
+		'expire' => 0
 	];
 
 	private $memcache = null;
@@ -72,16 +73,19 @@ class Memcache {
 	 *
 	 * @param $key mixed
 	 * @param $value mixed
+	 * @param $expire integer | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return mixed
 	 */
-	public function set($key, $value){
+	public function set($key, $value, $expire=null){
+
+		if(is_null($expire)){ $expire = $this->options['expire']; }
 
 		$key = $this->makeKey($key);
 
-		if($this->getMemcache()->set($key, json_encode($value))===false){
+		if($this->getMemcache()->set($key, json_encode($value), $expire)===false){
 			throw new MemcacheCacheException("Memcache set return false");
 		}
 
@@ -94,12 +98,13 @@ class Memcache {
 	 * Кэширует значения в хранилище Memcache, используя ассоциотивный массив
 	 *
 	 * @param $params array
+	 * @param $expire integer | null
 	 *
 	 * @throws MemcacheCacheException
 	 *
 	 * @return mixed
 	 */
-	public function setMultiple($params){
+	public function setMultiple($params, $expire=null){
 
 		$result = [];
 
@@ -107,13 +112,15 @@ class Memcache {
 			return $result;
 		}
 
+		if(is_null($expire)){ $expire = $this->options['expire']; }
+
 		$memcache = $this->getMemcache();
 
 		foreach($params as $k => $v){
 
 			$key = $this->makeKey($k);
 
-			if($memcache->set($key, json_encode($v))===false){
+			if($memcache->set($key, json_encode($v), $expire)===false){
 				throw new MemcacheCacheException("Memcache set return false");
 			}
 
@@ -143,9 +150,7 @@ class Memcache {
 
 		$get = $this->getMemcache()->get($key);
 
-		if($get===false){
-			throw new MemcacheCacheException("Memcache get return false");
-		}
+		if($get===false){ return null; }
 
 		$result = json_decode($get, true);
 

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 namespace Alonity\Components\Cache;
@@ -29,7 +29,8 @@ class Redis {
 		'password' => '',
 		'base' => 0,
 		'timeout' => 3,
-		'key' => 'alonitycache'
+		'key' => 'alonitycache',
+		'expire' => 0
 	];
 
 	private $redis = null;
@@ -98,7 +99,7 @@ class Redis {
 		$get = $this->getRedis()->hGet($this->options['key'], $key);
 
 		if($get===false){
-			throw new RedisCacheException("Redis get return false");
+			return null;
 		}
 
 		$result = json_decode($get, true);
@@ -157,17 +158,24 @@ class Redis {
 	 *
 	 * @param $key mixed
 	 * @param $value mixed
+	 * @param $expire integer | null
 	 *
 	 * @throws \RedisException
 	 *
 	 * @return mixed
 	 */
-	public function set($key, $value){
+	public function set($key, $value, $expire=null){
+
+		if(is_null($expire)){ $expire = $this->options['expire']; }
 
 		$key = self::makeKey($key);
 
 		if($this->getRedis()->hSet($this->options['key'], $key, json_encode($value))===false){
 			throw new \RedisException("Redis method hSet return false");
+		}
+
+		if($expire>0){
+			$this->getRedis()->setTimeout($this->options['key'].':'.$key, $expire);
 		}
 
 		$this->local[$key] = $value;
@@ -179,12 +187,13 @@ class Redis {
 	 * Кэширует значения в хранилище Redis, используя ассоциотивный массив
 	 *
 	 * @param $params array
+	 * @param $expire integer | null
 	 *
 	 * @throws \RedisException
 	 *
 	 * @return array
 	 */
-	public function setMultiple($params){
+	public function setMultiple($params, $expire=null){
 
 		$result = [];
 
@@ -192,12 +201,18 @@ class Redis {
 			return $result;
 		}
 
+		if(is_null($expire)){ $expire = $this->options['expire']; }
+
 		foreach($params as $k => $v){
 
 			$key = self::makeKey($k);
 
 			if($this->getRedis()->hSet($this->options['key'], $key, json_encode($v))===false){
 				throw new \RedisException("Redis method hSet return false");
+			}
+
+			if($expire>0){
+				$this->getRedis()->setTimeout($this->options['key'].':'.$key, $expire);
 			}
 
 			$result[$key] = $v;
