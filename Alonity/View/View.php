@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 namespace Alonity\View;
@@ -46,8 +46,17 @@ class View {
 		return ob_get_clean();
 	}
 
+	private function getKey($filename, $data){
+		ob_start();
+		var_dump($filename);
+		var_dump($data);
+		$buffer = ob_get_clean();
+
+		return md5($buffer);
+	}
+
 	public function getView($filename, $data=[]){
-		$key = md5(var_export($filename, true).var_export($data, true));
+		$key = $this->getKey($filename, $data);
 
 		if(isset($this->viewCache[$key])){ return $this->viewCache[$key]; }
 
@@ -85,8 +94,7 @@ class View {
 	 * @return string
 	*/
 	public function getViewTpl($filename, $data=[]){
-
-		$key = md5(var_export($filename, true).var_export($data, true));
+		$key = $this->getKey($filename, $data);
 
 		if(isset($this->viewCache[$key])){ return $this->viewCache[$key]; }
 
