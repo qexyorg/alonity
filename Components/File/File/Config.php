@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  *
  */
 
@@ -74,6 +74,19 @@ class Config {
 	}
 
 	/**
+	 * Устанавливает полный набор параметров конфига
+	 *
+	 * @param $data mixed
+	 *
+	 * @return Config();
+	*/
+	public function setData($data){
+		$this->params = $data;
+
+		return $this;
+	}
+
+	/**
 	 * Устанавливает значения конфига
 	 *
 	 * @param $name mixed
@@ -131,7 +144,7 @@ class Config {
 	}
 
 	public function get(){
-		$filename = "{$this->path}/{$this->name}Config.php";
+		$filename = "{$this->path}/{$this->name}.php";
 
 		$key = md5($filename);
 
@@ -155,7 +168,7 @@ class Config {
 	}
 
 	public function clearCache(){
-		$key = md5("{$this->path}/{$this->name}Config.php");
+		$key = md5("{$this->path}/{$this->name}.php");
 
 		if(isset($this->files[$key])){
 			unset($this->files[$key]);
@@ -183,7 +196,7 @@ class Config {
 		$name = $this->name;
 		$path = $this->path;
 
-		$filename = "{$path}/{$name}Config.php";
+		$filename = "{$path}/{$name}.php";
 
 		$key = md5($filename);
 
@@ -191,7 +204,7 @@ class Config {
 			@mkdir($path, 0777, true);
 		}
 
-		if(!@file_put_contents($filename, $this->generateData())){
+		if(!@file_put_contents($filename, $this->generateData(), LOCK_EX)){
 			$this->error = 'error build config';
 
 			return false;
@@ -206,7 +219,7 @@ class Config {
 		$name = $this->name;
 		$path = $this->path;
 
-		$filename = "{$path}/{$name}Config.php";
+		$filename = "{$path}/{$name}.php";
 
 		if(!file_exists($filename)){
 			return true;
