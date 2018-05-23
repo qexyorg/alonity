@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Alonity\Components\Filters;
@@ -32,7 +32,7 @@ class _BBCodes {
 
 	public static function parse($string, $specialchars=true){
 		if($specialchars){
-			$string = htmlspecialchars($string, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+			$string = htmlspecialchars($string, ENT_NOQUOTES, 'UTF-8');
 		}
 
 		$string = self::codeparse($string);
@@ -42,9 +42,9 @@ class _BBCodes {
 			$repl = (is_array($replace) && isset($replace[1])) ? $replace[0] : $replace;
 
 			if(is_array($replace) && isset($replace[1]) && $replace[1]===false){
-				$string = preg_replace("/$pattern/iu", $repl, $string);
+				$string = preg_replace("/$pattern/isu", $repl, $string);
 			}else{
-				$string = self::preg_replace_recursive("/$pattern/iu", $repl, $string);
+				$string = self::preg_replace_recursive("/$pattern/isu", $repl, $string);
 			}
 		}
 
@@ -73,21 +73,21 @@ class _BBCodes {
 
 			'\[spoiler\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><div class="bb-spoiler-text">$1</div></div>',
 
-			'\[spoiler=\'([^\'\>\<]+)\'\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><div class="bb-spoiler-title">$1</div><div class="bb-spoiler-text">$2</div></div>',
+			'\[spoiler="([^"\>\<\n]+)"\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><div class="bb-spoiler-title">$1</div><div class="bb-spoiler-text">$2</div></div>',
 
-			'\[color=\'#([0-9a-f]{6})\'\](.*)\[\/color\]' => '<span class="bb-color" style="color: #$1;">$2</span>',
+			'\[color="#([0-9a-f]{6})"\](.*)\[\/color\]' => '<span class="bb-color" style="color: #$1;">$2</span>',
 
-			'\[size=\'([1-6])\'\](.*)\[\/size\]' => '<h$1 class="bb-size-$1">$2</h$1>',
+			'\[size="([1-6])"\](.*)\[\/size\]' => '<h$1 class="bb-size-$1">$2</h$1>',
 
 			'\[img\]((?:f|ht)(?:tp)s?\:\/\/[^\s]+)\[\/img\]' => ['<img class="bb-image" src="$1" alt="IMAGE" />', false],
 
 			'\[quote\](.*)\[\/quote\]' => '<div class="bb-quote"><div class="bb-quote-text">$1</div></div>',
 
-			'\[quote=\'([^\'\>\<]+)\'\](.*)\[\/quote\]' => '<div class="bb-quote"><div class="bb-quote-title">$1</div><div class="bb-quote-text">$2</div></div>',
+			'\[quote="([^\n"\>\<]+)"\](.*)\[\/quote\]' => '<div class="bb-quote"><div class="bb-quote-title">$1</div><div class="bb-quote-text">$2</div></div>',
 
-			'\[url=\'((?:f|ht)(?:tp)s?\:\/\/[^\s\']+)\'\](.*)\[\/url\]' => ['<a class="bb-url" href="$1">$2</a>', false],
+			'\[url="((?:f|ht)(?:tp)s?\:\/\/[^\s"\n]+)"\](.*)\[\/url\]' => ['<a class="bb-url" href="$1">$2</a>', false],
 
-			'\[url\]((?:f|ht)(?:tp)s?\:\/\/[^\s\']+)\[\/url\]' => ['<a class="bb-url" href="$1">$1</a>', false],
+			'\[url\]((?:f|ht)(?:tp)s?\:\/\/[^\s"]+)\[\/url\]' => ['<a class="bb-url" href="$1">$1</a>', false],
 		];
 	}
 }
