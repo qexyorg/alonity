@@ -42,9 +42,9 @@ class _BBCodes {
 			$repl = (is_array($replace) && isset($replace[1])) ? $replace[0] : $replace;
 
 			if(is_array($replace) && isset($replace[1]) && $replace[1]===false){
-				$string = preg_replace("/$pattern/isu", $repl, $string);
+				$string = preg_replace("/$pattern/iU", $repl, $string);
 			}else{
-				$string = self::preg_replace_recursive("/$pattern/isu", $repl, $string);
+				$string = self::preg_replace_recursive("/$pattern/iU", $repl, $string);
 			}
 		}
 
