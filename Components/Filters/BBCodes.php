@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace Alonity\Components\Filters;
@@ -69,11 +69,11 @@ class _BBCodes {
 
 			'\[line\]' => ['<div class="bb-line"></div>', false],
 
-			'\[youtube\]https\:\/\/www\.youtube\.com\/watch\?v=([\w\-]{5,15})\[\/youtube\]' => ['<iframe width="854" height="480" src="https://www.youtube.com/embed/$1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', false],
+			'\[youtube\]https\:\/\/www\.youtube\.com\/watch\?v=([\w\-]{5,15})\[\/youtube\]' => ['<iframe width="516" height="290" src="https://www.youtube.com/embed/$1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', false],
 
-			'\[spoiler\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><div class="bb-spoiler-text">$1</div></div>',
+			'\[spoiler\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">Показать</a><div class="bb-spoiler-text">$1</div></div>',
 
-			'\[spoiler="([^"\>\<\n]+)"\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><div class="bb-spoiler-title">$1</div><div class="bb-spoiler-text">$2</div></div>',
+			'\[spoiler="([^"\>\<\n]+)"\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">Показать</a><div class="bb-spoiler-title">$1</div><div class="bb-spoiler-text">$2</div></div>',
 
 			'\[color="#([0-9a-f]{6})"\](.*)\[\/color\]' => '<span class="bb-color" style="color: #$1;">$2</span>',
 
