@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 namespace Alonity\Components\Filters;
@@ -25,7 +25,7 @@ class _BBCodes {
 	}
 
 	private static function codeparse($string){
-		return preg_replace_callback("/\[code\](.*)\[\/code\]/iu", function($matches){
+		return preg_replace_callback("/\[code\](.*)\[\/code\]/iUs", function($matches){
 			return '<code>'.str_replace(['[', ']'], ['&#91;', '&#93;'], $matches[1]).'</code>';
 		}, $string);
 	}
@@ -42,9 +42,9 @@ class _BBCodes {
 			$repl = (is_array($replace) && isset($replace[1])) ? $replace[0] : $replace;
 
 			if(is_array($replace) && isset($replace[1]) && $replace[1]===false){
-				$string = preg_replace("/$pattern/iU", $repl, $string);
+				$string = preg_replace("/$pattern/isU", $repl, $string);
 			}else{
-				$string = self::preg_replace_recursive("/$pattern/iU", $repl, $string);
+				$string = self::preg_replace_recursive("/$pattern/isU", $repl, $string);
 			}
 		}
 
@@ -71,9 +71,9 @@ class _BBCodes {
 
 			'\[youtube\]https\:\/\/www\.youtube\.com\/watch\?v=([\w\-]{5,15})\[\/youtube\]' => ['<iframe width="516" height="290" src="https://www.youtube.com/embed/$1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>', false],
 
-			'\[spoiler\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">Спойлер</a><div class="bb-spoiler-text">$1</div></div>',
+			'\[spoiler\](.*)\[\/spoiler\]' => '<div class="bb-spoiler-wrapper"><div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">Спойлер</a><div class="bb-spoiler-text">$1</div></div></div>',
 
-			'\[spoiler="([^"\>\<\n]+)"\](.*)\[\/spoiler\]' => '<div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">$1</a><div class="bb-spoiler-text">$2</div></div>',
+			'\[spoiler="([^"\>\<\n]+)"\](.*)\[\/spoiler\]' => '<div class="bb-spoiler-wrapper"><div class="bb-spoiler"><a href="#" class="bb-spoiler-trigger">$1</a><div class="bb-spoiler-text">$2</div></div></div>',
 
 			'\[color="#([0-9a-f]{6})"\](.*)\[\/color\]' => '<span class="bb-color" style="color: #$1;">$2</span>',
 
@@ -81,9 +81,9 @@ class _BBCodes {
 
 			'\[img\]((?:f|ht)(?:tp)s?\:\/\/[^\s]+)\[\/img\]' => ['<img class="bb-image" src="$1" alt="IMAGE" />', false],
 
-			'\[quote\](.*)\[\/quote\]' => '<div class="bb-quote"><div class="bb-quote-text">$1</div></div>',
+			'\[quote\](.*)\[\/quote\]' => '<div class="bb-quote-wrapper"><div class="bb-quote"><div class="bb-quote-text">$1</div></div></div>',
 
-			'\[quote="([^\n"\>\<]+)"\](.*)\[\/quote\]' => '<div class="bb-quote"><div class="bb-quote-title">$1</div><div class="bb-quote-text">$2</div></div>',
+			'\[quote="([^\n"\>\<]+)"\](.*)\[\/quote\]' => '<div class="bb-quote-wrapper"><div class="bb-quote"><div class="bb-quote-title">$1</div><div class="bb-quote-text">$2</div></div></div>',
 
 			'\[url="((?:f|ht)(?:tp)s?\:\/\/[^\s"\n]+)"\](.*)\[\/url\]' => ['<a class="bb-url" href="$1">$2</a>', false],
 
