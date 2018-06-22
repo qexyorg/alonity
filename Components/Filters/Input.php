@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Filters;
@@ -31,6 +31,8 @@ class _Input {
 	const TYPE_SIMPLE_STRING = 0x06;
 
 	const TYPE_DOMAIN = 0x07;
+
+	const TYPE_ENTITIES = 0x08;
 
 	// not complete - input for array values
 
@@ -56,7 +58,7 @@ class _Input {
 			throw new FilterInputException("param name must be not empty");
 		}
 
-		if($type<0x00 || $type>0x07){
+		if($type<0x00 || $type>0x08){
 			throw new FilterInputException("unexpected type");
 		}
 
@@ -156,6 +158,7 @@ class _Input {
 			case self::TYPE_EMAIL: return preg_replace('/[^\w\.\-\@]+/i', '', $value); break;
 			case self::TYPE_URL: return strip_tags(filter_var($value, FILTER_SANITIZE_URL)); break;
 			case self::TYPE_SIMPLE_STRING: return preg_replace('/[^\w\.\-]+/i', '', $value); break;
+			case self::TYPE_ENTITIES: return htmlspecialchars($value, ENT_QUOTES); break;
 			case self::TYPE_DOMAIN: return preg_replace('/[^a-z0-9-\.]+/i', '', $value); break;
 		}
 
