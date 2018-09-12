@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.0.1
  *
  */
 
@@ -139,7 +139,7 @@ class Permissions {
 
 		$hashgroup = self::hashed($name);
 
-		return (!isset(self::$data[$hashgroup]));
+		return (isset(self::$data[$hashgroup]));
 	}
 
 	/**
