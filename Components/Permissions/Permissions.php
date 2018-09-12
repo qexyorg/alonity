@@ -8,189 +8,211 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 2.0.0
  *
  */
 
 namespace Alonity\Components\Permissions;
 
-use Alonity\Components\Permissions\Update as Update;
-
 class PermissionsException extends \Exception {}
 
 class Permissions {
 
+	private static $group = 0;
+
 	private static $data = [];
 
-	private static $local = [];
+	private static $move = null;
 
-	private static $init = false;
-
-	private static $permdir = __DIR__;
-
-	private static function loading(){
-		if(self::$init){ return true; }
-
-		self::$permdir = dirname(dirname(__DIR__)).'/Uploads/permissions';
-
-		if(!file_exists(self::$permdir)){
-			@mkdir(self::$permdir, 0777, true);
-		}
-
-		if(file_exists(self::$permdir.'/default.php')){
-			self::$data = (require_once(self::$permdir.'/default.php'));
-		}else{
-			self::$data = [];
-		}
-
-		self::$local = self::$data;
-
-		self::$init = true;
-
-		return true;
-	}
-
-	private static function hashed($name){
-		return md5($name);
+	/**
+	 * Создает хэш из параметров
+	 *
+	 * @param $params mixed
+	 *
+	 * @return string
+	*/
+	private static function hashed($params){
+		return md5(var_export($params, true));
 	}
 
 	/**
-	 * Возвращает массив со всей информацией о привилегии
+	 * Устанавливает текущую группу
 	 *
 	 * @param $name mixed
 	 *
-	 * @throws PermissionsException
+	 * @return void
+	*/
+	public static function setCurrentGroup($name){
+		self::$group = $name;
+	}
+
+	/**
+	 * Возвращает текущую группу
+	 *
+	 * @return mixed
+	 */
+	public static function getCurrentGroup(){
+		return self::$group;
+	}
+
+	/**
+	 * Возвращает значение по ключу [и группе]
+	 *
+	 * @param $key mixed
+	 * @param $group mixed
+	 *
+	 * @return mixed
+	*/
+	public static function get($key, $group=null){
+		if(is_null($group)){
+			$group = self::$group;
+		}
+
+		$hashgroup = self::hashed($group);
+
+		if(!isset(self::$data[$hashgroup])){
+			return null;
+		}
+
+		if(!isset(self::$data[$hashgroup][$key])){
+			return null;
+		}
+
+		return self::$data[$hashgroup][$key];
+	}
+
+	/**
+	 * Устанавливает значение по ключу [и группе]
+	 *
+	 * @param $key mixed
+	 * @param $value mixed
+	 * @param $group mixed
+	 *
+	 * @return mixed
+	*/
+	public static function set($key, $value, $group=null){
+		if(is_null($group)){
+			$group = self::$group;
+		}
+
+		$hashgroup = self::hashed($group);
+
+		if(!isset(self::$data[$hashgroup])){
+			self::$data[$hashgroup] = [];
+		}
+
+		self::$data[$hashgroup][$key] = $value;
+
+		return $value;
+	}
+
+	/**
+	 * Проверяет наличие ключа в группе
+	 *
+	 * @param $key mixed
+	 * @param $group mixed
+	 *
+	 * @return boolean
+	 */
+	public static function exists($key, $group=null){
+		if(is_null($group)){
+			$group = self::$group;
+		}
+
+		$hashgroup = self::hashed($group);
+
+		if(!isset(self::$data[$hashgroup])){
+			return false;
+		}
+
+		return (isset(self::$data[$hashgroup][$key]));
+	}
+
+	/**
+	 * Проверяет наличие группы
+	 *
+	 * @param $name mixed
+	 *
+	 * @return boolean
+	 */
+	public static function groupExists($name){
+
+		$hashgroup = self::hashed($name);
+
+		return (!isset(self::$data[$hashgroup]));
+	}
+
+	/**
+	 * Возвращает все привилегии группы
+	 *
+	 * @param $group mixed
 	 *
 	 * @return array
 	*/
-	public static function localGetInfo($name){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		if(!isset(self::$local[$key])){
-			return null;
+	public static function getAll($group=null){
+		if(is_null($group)){
+			$group = self::$group;
 		}
 
-		if(!isset(self::$local[$key])){
-			throw new PermissionsException('index "value" is not set');
+		$hashgroup = self::hashed($group);
+
+		if(!self::groupExists($group)){
+			return [];
 		}
 
-		return self::$local[$key];
+		return self::$data[$hashgroup];
 	}
 
 	/**
-	 * Возвращает значение привилегии
+	 * Сверяет значение
 	 *
-	 * @param $name mixed
-	 *
-	 * @throws PermissionsException
-	 *
-	 * @return mixed
-	*/
-	public static function localGetVal($name){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		if(!isset(self::$local[$key])){
-			return null;
-		}
-
-		if(!isset(self::$local[$key]['value'])){
-			throw new PermissionsException('index "value" is not set');
-		}
-
-		return self::$local[$key]['value'];
-	}
-
-	/**
-	 * Устанавливает значение привилегии, которое будет доступно в пределах текущего запроса
-	 *
-	 * @param $name mixed
+	 * @param $key mixed
 	 * @param $value mixed
-	 *
-	 * @return mixed
-	 */
-	public static function localSetVal($name, $value){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		self::$local[$key] = $value;
-
-		return self::$local[$key];
-	}
-
-	/**
-	 * Удаляет локальную привилегию
-	 *
-	 * @param $name mixed
-	 *
-	 * @return mixed
-	 */
-	public static function localDelete($name){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		if(!isset(self::$local[$key])){
-			return false;
-		}
-
-		unset(self::$local[$key]);
-
-		return true;
-	}
-
-	/**
-	 * Проверяет наличие привилегии
-	 *
-	 * @param $name mixed
+	 * @param $group mixed
 	 *
 	 * @return boolean
 	*/
-	public static function exists($name){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		return isset(self::$local[$key]);
+	public static function equal($key, $value, $group=null){
+		return (self::get($key, $group)===$value);
 	}
 
 	/**
-	 * Сравнивает значения
+	 * Устанавливает привилегии группе
 	 *
-	 * @param $name mixed
-	 * @param $value mixed
+	 * @param $permissions array
+	 * @param $group mixed
 	 *
-	 * @return boolean
+	 * @return array
 	*/
-	public static function equal($name, $value){
-		self::loading();
-
-		$key = self::hashed($name);
-
-		if(!isset(self::$local[$key])){
-			return false;
+	public static function setPermissions($permissions, $group=null){
+		if(is_null($group)){
+			$group = self::$group;
 		}
 
-		if(!isset(self::$local[$key]['value'])){
-			return false;
+		$hashgroup = self::hashed($group);
+
+		if(!isset(self::$data[$hashgroup])){
+			self::$data[$hashgroup] = $permissions;
+		}else{
+			self::$data[$hashgroup] = array_replace_recursive(self::$data[$hashgroup], $permissions);
 		}
 
-		return (self::$local[$key]['value']===$value);
+		return $permissions;
 	}
 
 	/**
-	 * Возвращает экземпляр класса Update
+	 * Возвращает экземпляр класса Move
 	 *
-	 * @return \Alonity\Components\Permissions\Update()
+	 * @return Move
 	*/
-	public static function update(){
-		self::loading();
+	public static function move(){
+		if(!is_null(self::$move)){
+			return self::$move;
+		}
 
-		return new Update(self::$data);
+		self::$move = new Move();
+
+		return self::$move;
 	}
 }
 
