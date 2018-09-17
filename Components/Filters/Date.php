@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace Alonity\Components\Filters;
@@ -18,24 +18,139 @@ class FilterDateException extends \Exception {}
 class _Date {
 
 	/**
-	 * Преобразует секунды в кол-во оставшихся лет/месяцев/дней/часов/минут/секунд
+	 * Преобразует секунды в кол-во оставшихся лет/месяцев/недель/дней/часов/минут/секунд
 	 *
-	 * @param $seconds integer
+	 * @param $time integer
+	 * @param $now integer
 	 *
 	 * @return array
 	*/
-	public static function expire($seconds){
-		$seconds = intval($seconds);
+	public static function expire($time, $now=null){
+		$time = intval($time);
+
+		$now = (is_null($now)) ? time() : intval($now);
+
+		$seconds = $time - $now;
+
+		$minute = 60;
+		$hour = $minute * 60;
+		$day = $hour * 24;
+		$week = $day * 7;
+		$month = $day * 30;
+		$year = $day * 365;
+
+		$years = intval($seconds / $year);
+		$years_e = $seconds % $year;
+
+		$months = intval($years_e / $month);
+		$months_e = $years_e % $month;
+
+		$weeks = intval($months_e / $week);
+
+		$days = intval($months_e / $day);
+		$days_e = $months_e % $day;
+
+		$hours = intval($days_e / $hour);
+		$hours_e = $days_e % $hour;
+
+		$minutes = intval($hours_e / $minute);
+		$minutes_e = $hours_e % $minute;
 
 		return [
-			'y' => intval($seconds / 31536000),
-			'm' => intval(($seconds % 31536000) / 2592000),
-			'w' => intval(($seconds % 2592000) / 604800),
-			'd' => intval(($seconds % 604800) / 86400),
-			'h' => intval(($seconds % 86400) / 3600),
-			'min' => intval(($seconds % 3600) / 60),
-			's' => intval($seconds % 60)
+			'years' => $years,
+			'months' => $months,
+			'weeks' => $weeks,
+			'days' => $days,
+			'hours' => $hours,
+			'minutes' => $minutes,
+			'seconds' => $minutes_e
 		];
+	}
+
+	/**
+	 * Приводит дату к виду остатка от нужной даты
+	 *
+	 * @param $time integer
+	 * @param $now integer
+	 *
+	 * @return string
+	*/
+	public static function toFormatExpire($time, $now=null){
+		if(is_null($now)){ $now = time(); }
+
+		$time = intval($time);
+		$now = intval($now);
+
+		$seconds = $time - $now;
+
+		if($seconds<=0){ return ''; }
+
+		$delcs = [
+			'seconds' => ['секунд', 'секунды', 'секунда'],
+			'minutes' => ['минут', 'минуты', 'минута'],
+			'hours' => ['часов', 'часа', 'час'],
+			'days' => ['дней', 'дня', 'день'],
+			'months' => ['месяцев', 'месяца', 'месяц'],
+			'years' => ['лет', 'года', 'год'],
+		];
+
+		if($seconds<60){
+			return "{$seconds} ".self::decl($seconds, $delcs['seconds']);
+		}
+
+		$expire = self::expire($time, $now);
+
+		$result = '';
+
+		if($expire['years']>0){
+			$result .= " {$expire['years']} ".self::decl($expire['years'], $delcs['years']);
+		}
+
+		if($expire['months']>0){
+			$result .= " {$expire['months']} ".self::decl($expire['months'], $delcs['months']);
+		}
+
+		if($expire['days']>0){
+			$result .= " {$expire['days']} ".self::decl($expire['days'], $delcs['days']);
+		}
+
+		if($expire['hours']>0){
+			$result .= " {$expire['hours']} ".self::decl($expire['hours'], $delcs['hours']);
+		}
+
+		if($expire['minutes']>0){
+			$result .= " {$expire['minutes']} ".self::decl($expire['minutes'], $delcs['minutes']);
+		}
+
+		if($expire['seconds']>0){
+			$result .= " {$expire['seconds']} ".self::decl($expire['seconds'], $delcs['seconds']);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Переводит число в указанный падеж
+	 *
+	 * @param $time integer
+	 * @param $array array
+	 *
+	 * @return string
+	*/
+	public static function decl($time, $array){
+		$end = $time % 10;
+
+		if(sizeof($array)!=3){ return ''; }
+
+		if($time>5 && $time<20){
+			return @$array[0];
+		}elseif($end > 1 && $end<5){
+			return @$array[1];
+		}elseif($end==1){
+			return @$array[2];
+		}
+
+		return @$array[0];
 	}
 
 	/**

@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 namespace Alonity\Model;
@@ -110,31 +110,39 @@ class Model {
 	 * Возвращает экземпляр класса модели по имени
 	 *
 	 * @param $name string
-	 * @param $file string
+	 * @param $file string|null
+	 * @param $classname string|null
+	 * @param $params mixed
 	 *
 	 * @throws ModelException
 	 *
 	 * @return object
 	*/
-	public function getOtherModel($name, $file=''){
+	public function getOtherModel($name, $file=null, $classname=null, $params=true){
 
 		$key = md5($name);
 
 		if(isset($this->cache[$key])){ return $this->cache[$key]; }
 
-		$file = (!empty($file)) ? $file : "{$name}.php";
+		$file = (!is_null($file)) ? $file : "{$name}.php";
 
 		$filename = "{$this->alonity->getRoot()}/Applications/{$this->alonity->getAppKey()}/Models/{$file}";
 
 		require_once($filename);
 
-		$classname = "{$name}Model";
+		$classname = (!is_null($classname)) ? $classname : "{$name}Model";
 
 		if(!class_exists($classname)){
 			throw new ModelException("Class \"$classname\" not found in \"$filename\"");
 		}
 
-		$this->cache[$key] = new $classname($this->alonity);
+		if($params===true){
+			$this->cache[$key] = new $classname($this->alonity);
+		}elseif(is_null($params)){
+			$this->cache[$key] = new $classname();
+		}else{
+			$this->cache[$key] = new $classname($params);
+		}
 
 		return $this->cache[$key];
 	}
