@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 namespace Alonity\Components\Cache;
@@ -19,21 +19,25 @@ class Redis {
 
 	private $local = [];
 
+	private $options = [];
+
+	private $redis = null;
+
+	public function __construct(){
+		$this->options = [
+			'host' => '127.0.0.1',
+			'port' => 6379,
+			'password' => '',
+			'base' => 0,
+			'timeout' => 3,
+			'key' => 'alonitycache',
+			'expire' => 0
+		];
+	}
+
 	public function setOptions($options){
 		$this->options = array_merge($this->options, $options);
 	}
-
-	private $options = [
-		'host' => '127.0.0.1',
-		'port' => 6379,
-		'password' => '',
-		'base' => 0,
-		'timeout' => 3,
-		'key' => 'alonitycache',
-		'expire' => 0
-	];
-
-	private $redis = null;
 
 	/**
 	 * Шифрование ключа

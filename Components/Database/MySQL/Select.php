@@ -46,9 +46,11 @@ class Select {
 
 	private $join = [];
 
-	private $jointypes = ['inner', 'left', 'right'];
+	private $jointypes = [];
 
 	public function __construct($obj){
+		$this->jointypes = ['inner', 'left', 'right'];
+
 		$this->obj = $obj;
 	}
 

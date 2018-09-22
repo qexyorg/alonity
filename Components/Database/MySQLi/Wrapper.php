@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.1.1
  */
 
 namespace Alonity\Components\Database;
@@ -23,18 +23,22 @@ require_once(__DIR__.'/Exception.php');
 
 class MySQLi {
 
-	private $options = [
-		'host' => '127.0.0.1',
-		'port' => 3306,
-		'charset' => 'utf8',
-		'timeout' => 3,
-		'database' => 'database',
-		'user' => 'root',
-		'password' => '',
-		'key' => 0
-	];
+	private $options = [];
 
 	private $connections = [];
+
+	public function __construct(){
+		$this->options = [
+			'host' => '127.0.0.1',
+			'port' => 3306,
+			'charset' => 'utf8',
+			'timeout' => 3,
+			'database' => 'database',
+			'user' => 'root',
+			'password' => '',
+			'key' => 0
+		];
+	}
 
 	/**
 	 * Создает соединение с базой MySQLi

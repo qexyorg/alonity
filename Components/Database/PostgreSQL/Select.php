@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.4.1
+ * @version 1.4.2
  */
 
 namespace Alonity\Components\Database\PostgreSQL;
@@ -46,9 +46,10 @@ class Select {
 
 	private $join = [];
 
-	private $jointypes = ['inner', 'left', 'right'];
+	private $jointypes = [];
 
 	public function __construct($obj){
+		$this->jointypes = ['inner', 'left', 'right'];
 
 		$this->obj = $obj;
 	}

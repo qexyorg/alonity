@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.0.1
  *
  */
 
@@ -28,7 +28,7 @@ class Image {
 
 	private $source = null;
 
-	private $extensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'wbmp', 'webp', 'xbm'];
+	private $extensions = [];
 
 	private $scale = false;
 
@@ -45,6 +45,8 @@ class Image {
 	private $resizeHeight = 0;
 
 	public function __construct(){
+		$this->extensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'wbmp', 'webp', 'xbm'];
+
 		if(!function_exists('getimagesize')){
 			throw new ImageException('GD library not found');
 		}

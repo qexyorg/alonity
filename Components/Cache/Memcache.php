@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 namespace Alonity\Components\Cache;
@@ -19,18 +19,22 @@ class Memcache {
 
 	private $local = [];
 
+	private $options = [];
+
+	private $memcache = null;
+
+	public function __construct(){
+		$this->options = [
+			'host' => '127.0.0.1',
+			'port' => 11211,
+			'timeout' => 3,
+			'expire' => 0
+		];
+	}
+
 	public function setOptions($options){
 		$this->options = array_merge($this->options, $options);
 	}
-
-	private $options = [
-		'host' => '127.0.0.1',
-		'port' => 11211,
-		'timeout' => 3,
-		'expire' => 0
-	];
-
-	private $memcache = null;
 
 	/**
 	 * Шифрование ключа

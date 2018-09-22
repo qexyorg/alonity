@@ -23,18 +23,22 @@ require_once(__DIR__.'/Exception.php');
 
 class PostgreSQL {
 
-	private $options = [
-		'host' => '127.0.0.1',
-		'port' => 5432,
-		'charset' => 'utf8',
-		'timeout' => 3,
-		'database' => 'postgres',
-		'user' => 'postgres',
-		'password' => '',
-		'key' => 0
-	];
+	private $options = [];
 
 	private $connections = [];
+
+	public function __construct(){
+		$this->options = [
+			'host' => '127.0.0.1',
+			'port' => 5432,
+			'charset' => 'utf8',
+			'timeout' => 3,
+			'database' => 'postgres',
+			'user' => 'postgres',
+			'password' => '',
+			'key' => 0
+		];
+	}
 
 	/**
 	 * Создает соединение с базой PostgreSQL

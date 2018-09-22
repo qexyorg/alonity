@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 namespace Alonity\Components\Cache;
@@ -17,13 +17,17 @@ class FileCacheException extends \Exception {}
 
 class File {
 
-	private $options = [
-		'path' => '/Uploads/cache'
-	];
+	private $options = [];
 
 	private $rootDir = null;
 
 	private $local = [];
+
+	public function __construct(){
+		$this->options = [
+			'path' => '/Uploads/cache'
+		];
+	}
 
 	public function setOptions($options){
 		$this->options = array_replace_recursive($this->options, $options);
