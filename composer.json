@@ -1,0 +1,26 @@
+{
+    "name": "qexyorg/alonity",
+    "description": "Alonity - PHP Micro MVC Framework",
+    "type": "library",
+    "keywords": ["framework"],
+    "homepage": "https://qexy.org",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Qexy",
+            "email": "admin@qexy.org",
+            "homepage": "https://qexy.org"
+        }
+    ],
+
+    "minimum-stability": "RC",
+    "require": {
+        "php": "^7.0",
+        "twig/twig": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Framework\\": ""
+        }
+    }
+}
