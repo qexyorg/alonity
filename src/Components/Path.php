@@ -13,6 +13,8 @@
 
 namespace Framework\Components;
 
+use Framework\Alonity\DI\DI;
+
 class Path {
 
 	private static $rootDir = null;
@@ -69,7 +71,7 @@ class Path {
 			return self::$rootDir;
 		}
 
-		self::$rootDir = dirname(__DIR__);
+		self::$rootDir = DI::get('ALONITY')->getRoot();
 
 		return self::$rootDir;
 	}

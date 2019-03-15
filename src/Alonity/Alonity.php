@@ -8,11 +8,12 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 0.4.0
+ * @version 1.0.0
  */
 
 namespace Framework\Alonity;
 
+use Framework\Alonity\DI\DI;
 use Framework\Alonity\Router\RouterHelper;
 use Framework\Alonity\Triggers\Triggers;
 use Framework\Alonity\Triggers\TriggersException;
@@ -22,7 +23,7 @@ class Alonity implements AlonityInterface {
 	use Triggers;
 
 	// Версия ядра
-	const VERSION = '0.5.0';
+	const VERSION = 'rc-1.0.0';
 
 	// Версия приложения
 	private $AppVersion = null;
@@ -57,6 +58,12 @@ class Alonity implements AlonityInterface {
 
 	private $application = null;
 
+	public function __construct(){
+		if(!DI::has('ALONITY')){
+			DI::set('ALONITY', $this);
+		}
+	}
+
 	/**
 	 * Получение конфигка приложения
 	 *
@@ -79,6 +86,37 @@ class Alonity implements AlonityInterface {
 	}
 
 	/**
+	 * Выставляет корневую директорию
+	 *
+	 * @param $root string
+	*/
+	public function setRoot($root){
+		$this->rootDir = $root;
+	}
+
+	/**
+	 * Производит поиск корневой директории
+	 *
+	 * @return string|null
+	*/
+	private function searchRoot(){
+		$result = null;
+
+		$path = __DIR__;
+
+		for($i=0;$i<10;$i++){
+			if(!file_exists("{$path}/vendor")){
+				$path = dirname($path);
+			}else{
+				$result = $path;
+				break;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Возвращает директорию корня сайта
 	 *
 	 * @return string
@@ -86,7 +124,9 @@ class Alonity implements AlonityInterface {
 	public function getRoot(){
 		if(!is_null($this->rootDir)){ return $this->rootDir; }
 
-		$this->rootDir = dirname(__DIR__);
+		$search = $this->searchRoot();
+
+		$this->rootDir = (is_null($search)) ? dirname(__DIR__) : $search;
 
 		return $this->rootDir;
 	}

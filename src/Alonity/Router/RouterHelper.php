@@ -13,6 +13,7 @@
 
 namespace Framework\Alonity\Router;
 
+use Framework\Alonity\DI\DI;
 use Framework\Alonity\Keys\Key;
 
 class RouterHelper implements RouterHelperInterface {
@@ -198,7 +199,7 @@ class RouterHelper implements RouterHelperInterface {
 	public static function getRoot(){
 		if(!is_null(self::$rootDir)){ return self::$rootDir; }
 
-		self::$rootDir = dirname(dirname(__DIR__));
+		self::$rootDir = DI::get('ALONITY')->getRoot();
 
 		return self::$rootDir;
 	}
@@ -248,7 +249,7 @@ class RouterHelper implements RouterHelperInterface {
 
 		$appname = $application['app_name'];
 
-		return "\\Framework\\Applications\\$appname\\Controllers";
+		return "App\\$appname\\Controllers";
 	}
 
 	/**

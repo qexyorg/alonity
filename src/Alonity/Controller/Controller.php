@@ -45,7 +45,7 @@ class Controller extends Router {
 
 		$router = $this->getCurrent();
 
-		$classname = "\\Framework\\Applications\\$appname\\Models\\".$router['controller'];
+		$classname = "App\\$appname\\Models\\".$router['controller'];
 
 		if(!class_exists($classname)){
 			return null;
@@ -73,7 +73,7 @@ class Controller extends Router {
 
 		$router = $this->getCurrent();
 
-		$classname = "\\Framework\\Applications\\$appname\\Views\\".$router['controller'];
+		$classname = "App\\$appname\\Views\\".$router['controller'];
 
 		if(!class_exists($classname)){
 			return null;

@@ -17,6 +17,8 @@ use Framework\Alonity\DI\DI;
 use Framework\Alonity\Keys\Key;
 use Framework\Alonity\Router\Router;
 use Framework\Alonity\Router\RouterHelper;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class View extends Router implements ViewInterface {
 
@@ -31,7 +33,7 @@ class View extends Router implements ViewInterface {
 			return $this->rootDir;
 		}
 
-		$this->rootDir = dirname(dirname(__DIR__));
+		$this->rootDir = DI::get('ALONITY')->getRoot();
 
 		return $this->rootDir;
 	}
@@ -109,8 +111,6 @@ class View extends Router implements ViewInterface {
 	 * @param $data array
 	 * @param $defaultDir string|null
 	 *
-	 * @throws ViewException
-	 *
 	 * @return string
 	*/
 	public function getViewTpl($filename, $data=[], $defaultDir=null){
@@ -153,8 +153,6 @@ class View extends Router implements ViewInterface {
 	 *
 	 * @param $params mixed
 	 *
-	 * @throws ViewException
-	 *
 	 * @return string
 	*/
 	public function getJson($params){
@@ -185,11 +183,11 @@ class View extends Router implements ViewInterface {
 			return DI::get('TWIG_LOADER');
 		}
 
-		return DI::set('TWIG_LOADER', new \Twig_Loader_Filesystem());
+		return DI::set('TWIG_LOADER', new FilesystemLoader());
 	}
 
 	/**
-	 * @return \Twig_Environment
+	 * @return Environment
 	 */
 	public function getTemplater(){
 		if(DI::has('TWIG_ENV')){
@@ -198,7 +196,7 @@ class View extends Router implements ViewInterface {
 
 		$application = RouterHelper::getApp();
 
-		return DI::set('TWIG_ENV', new \Twig_Environment($this->getTemplaterLoader(), [
+		return DI::set('TWIG_ENV', new Environment($this->getTemplaterLoader(), [
 			'cache' => ($application['templater_cache']===false) ? $application['templater_cache'] : dirname(dirname(__DIR__)).$application['templater_cache']
 		]));
 	}

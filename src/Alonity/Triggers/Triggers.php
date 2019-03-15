@@ -13,6 +13,7 @@
 
 namespace Framework\Alonity\Triggers;
 
+use Framework\Alonity\DI\DI;
 use Framework\Alonity\Keys\Key;
 
 trait Triggers {
@@ -37,7 +38,7 @@ trait Triggers {
 
 		$appname = $this->getKey();
 
-		$triggers_path = $this->getRoot()."/Applications/{$appname}/Triggers/";
+		$triggers_path = DI::get('ALONITY')->getRoot()."/Applications/{$appname}/Triggers/";
 
 		if(!file_exists($triggers_path)){
 			return false;
@@ -49,7 +50,7 @@ trait Triggers {
 			return false;
 		}
 
-		$classname = "Framework\\Applications\\{$appname}\\Triggers\\{$name}";
+		$classname = "App\\{$appname}\\Triggers\\{$name}";
 
 		if(!class_exists($classname)){
 			throw new TriggersException("Class \"$name\" not found");
