@@ -3,12 +3,12 @@
  * Database MySQLi wrapper component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database\MySQLi;
@@ -48,14 +48,14 @@ class Wrapper {
 
 		ini_set('mysql.connect_timeout', $timeout);
 
-		$connection =  new \mysqli($host, $user, $password, $database, $port);
+		@$connection =  new \mysqli($host, $user, $password, $database, $port);
 
-		if($connection->connect_errno){
-			throw new DatabaseException("MySQLi connection error: {$connection->connect_error}");
+		if(@$connection->connect_errno){
+			throw @new DatabaseException("MySQLi connection error: {$connection->connect_error}");
 		}
 
 		if(!@$connection->options(MYSQLI_OPT_CONNECT_TIMEOUT, $timeout)){
-			throw new DatabaseException("MySQLi error set options: {$connection->connect_error}");
+			throw @new DatabaseException("MySQLi error set options: {$connection->connect_error}");
 		}
 
 		$this->connections[$token] = $connection;
@@ -76,6 +76,14 @@ class Wrapper {
 	 * @return \mysqli
 	 */
 	public function setDB($name, $obj=null){
+
+		if(is_null($obj)){
+			$obj = $this->getObj();
+		}
+
+		if(is_null($obj) || $obj===false){
+			throw new DatabaseException("connection is not set");
+		}
 
 		if(empty($name)){
 			throw new DatabaseException("database name must be not empty");
@@ -103,6 +111,14 @@ class Wrapper {
 	 * @return \mysqli
 	 */
 	public function setCharset($encoding='utf8', $obj=null){
+
+		if(is_null($obj)){
+			$obj = $this->getObj();
+		}
+
+		if(is_null($obj) || $obj===false){
+			throw new DatabaseException("connection is not set");
+		}
 
 		if(empty($encoding)){
 			throw new DatabaseException("database encoding must be not empty");
@@ -280,6 +296,24 @@ class Wrapper {
 		if(!isset($this->connections[$key])){ return false; }
 
 		return $this->connections[$key];
+	}
+
+	/**
+	 * Возвращает последнюю ошибку запроса
+	 *
+	 * @throws DatabaseException
+	 *
+	 * @return string
+	*/
+	public function getError(){
+
+		$obj = $this->getObj();
+
+		if($obj===false){
+			throw new DatabaseException("Object is false");
+		}
+
+		return (isset($obj->error)) ? $obj->error : '';
 	}
 }
 

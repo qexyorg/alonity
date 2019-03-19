@@ -197,7 +197,7 @@ class View extends Router implements ViewInterface {
 		$application = RouterHelper::getApp();
 
 		return DI::set('TWIG_ENV', new Environment($this->getTemplaterLoader(), [
-			'cache' => ($application['templater_cache']===false) ? $application['templater_cache'] : dirname(dirname(__DIR__)).$application['templater_cache']
+			'cache' => ($application['templater_cache']===false) ? $application['templater_cache'] : DI::get('ALONITY')->getRoot().$application['templater_cache']
 		]));
 	}
 }

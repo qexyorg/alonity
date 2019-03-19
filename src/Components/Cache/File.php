@@ -13,6 +13,8 @@
 
 namespace Framework\Components\Cache;
 
+use Framework\Alonity\DI\DI;
+
 class File {
 
 	private $options = [];
@@ -23,7 +25,7 @@ class File {
 
 	public function __construct(){
 		$this->options = [
-			'path' => '/Uploads/cache'
+			'path' => '/tmp/cache'
 		];
 	}
 
@@ -47,7 +49,7 @@ class File {
 			return $this->rootDir;
 		}
 
-		$this->rootDir = dirname(dirname(__DIR__));
+		$this->rootDir = DI::get('ALONITY')->getRoot();
 
 		return $this->rootDir;
 	}

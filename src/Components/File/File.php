@@ -3,16 +3,17 @@
  * File component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 3.0.0
+ * @version 3.0.1
  */
 
 namespace Framework\Components\File;
 
+use Framework\Alonity\DI\DI;
 use Framework\Components\File\File\Config;
 use Framework\Components\File\File\Image;
 use Framework\Components\File\File\Upload;
@@ -28,7 +29,7 @@ class File {
 	private static function getRoot(){
 		if(!is_null(self::$root)){ return self::$root; }
 
-		self::setRoot(dirname(dirname(__DIR__)));
+		self::setRoot(DI::get('ALONITY')->getRoot());
 
 		return self::$root;
 	}
@@ -124,7 +125,7 @@ class File {
 			unset($scan[0], $scan[1]);
 
 			if(empty($scan)){
-				rmdir($dirname);
+				@rmdir($dirname);
 
 				return true;
 			}
@@ -142,7 +143,7 @@ class File {
 						continue;
 					}
 
-					rmdir($dirname.'/'.$v);
+					@rmdir($dirname.'/'.$v);
 				}else{
 					@unlink($dirname.'/'.$v);
 
@@ -152,7 +153,7 @@ class File {
 				}
 			}
 
-			rmdir($dirname);
+			@rmdir($dirname);
 		}
 
 		return true;

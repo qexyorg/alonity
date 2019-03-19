@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Crypt;
@@ -29,7 +29,7 @@ class Crypt {
 	}
 
 	/**
-	 * Преобразует значение в MD5 хэш
+	 * Преобразует значение в хэш алгоритма MD5
 	 *
 	 * @param $value mixed
 	 *
@@ -40,15 +40,25 @@ class Crypt {
 	}
 
 	/**
-	 * Преобразует значение в MD5 хэш с солью
+	 * Преобразует значение в хэш алгоритма SHA256
 	 *
 	 * @param $value mixed
-	 * @param $salt string
 	 *
 	 * @return string
 	 */
-	public static function saledMD5($value, $salt=''){
-		return self::MD5($value.$salt);
+	public static function SHA256($value){
+		return self::Hash($value, 'sha256');
+	}
+
+	/**
+	 * Преобразует значение в хэш алгоритма SHA512
+	 *
+	 * @param $value mixed
+	 *
+	 * @return string
+	 */
+	public static function SHA512($value){
+		return self::Hash($value, 'sha512');
 	}
 
 	/**
@@ -63,18 +73,6 @@ class Crypt {
 	}
 
 	/**
-	 * Преобразует значение в SHA1 хэш с солью
-	 *
-	 * @param $value mixed
-	 * @param $salt string
-	 *
-	 * @return string
-	 */
-	public static function saledSHA1($value, $salt){
-		return self::SHA1(self::SHA1($value).self::SHA1($salt));
-	}
-
-	/**
 	 * Преобразует значение в CRC32 хэш
 	 *
 	 * @param $value mixed
@@ -86,18 +84,6 @@ class Crypt {
 	}
 
 	/**
-	 * Преобразует значение в CRC32 хэш с солью
-	 *
-	 * @param $value mixed
-	 * @param $salt string
-	 *
-	 * @return string
-	*/
-	public static function saledCRC32($value, $salt){
-		return self::CRC32(self::CRC32($value).self::CRC32($salt));
-	}
-
-	/**
 	 * Преобразует строку в массив
 	 *
 	 * @param $string string
@@ -105,15 +91,7 @@ class Crypt {
 	 * @return array
 	 */
 	private static function toArray($string){
-		$len = mb_strlen($string, 'UTF-8');
-
-		$result = [];
-
-		for($i=0; $i<$len; $i++){
-			$result[] = mb_substr($string, $i, 1, 'UTF-8');
-		}
-
-		return $result;
+		return preg_split("//u", $string, -1, PREG_SPLIT_NO_EMPTY);
 	}
 
 	/**
@@ -221,27 +199,24 @@ class Crypt {
 	}
 
 	/**
-	 * Создает хэш пароля используя алгоритм Blowfish. Если установлен параметр strict, то будет использоваться алгоритм haval256,4
+	 * Создает хэш пароля используя алгоритм Blowfish
 	 *
 	 * @param $value string
-	 * @param $strict boolean
+	 * @param $cost integer
 	 *
 	 * @throws CryptException
 	 *
 	 * @return string
 	 */
-	public static function createPassword($value, $strict=false){
-		if(!$strict){
-			return password_hash($value, PASSWORD_BCRYPT, [
-				'cost' => 12
-			]);
+	public static function createPassword($value, $cost=12){
+
+		if(!function_exists('password_hash')){
+			throw new CryptException('Function password_hash is not found. Use PHP >=5.5');
 		}
 
-		$salt = self::randomStringLatin(16, 32);
-
-		$string = self::Hash(strval($value).$salt, 'haval256,4');
-
-		return '$haval256$4$'.$salt.'$'.$string;
+		return password_hash($value, PASSWORD_BCRYPT, [
+			'cost' => $cost
+		]);
 	}
 
 	/**
@@ -249,35 +224,18 @@ class Crypt {
 	 *
 	 * @param $value string
 	 * @param $hash string
-	 * @param $strict boolean
 	 *
 	 * @throws CryptException
 	 *
 	 * @return boolean
 	*/
-	public static function checkPassword($value, $hash, $strict=false){
+	public static function checkPassword($value, $hash){
 
-		if(!$strict){
-			if(!function_exists('password_verify')){
-				throw new CryptException("use strict mode for php < 5.5");
-			}
-
-			return password_verify($value, $hash);
+		if(!function_exists('password_verify')){
+			throw new CryptException('Function password_verify is not found. Use PHP >=5.5');
 		}
 
-		$props = explode('$', $hash);
-
-		if(sizeof($props)!=5){
-			return false;
-		}
-
-		$algo = "$props[1],{$props[2]}";
-
-		$salt = $props[3];
-
-		$string = '$haval256$4$'.$salt.'$'.self::Hash(strval($value).$salt, $algo);
-
-		return ($string===$hash) ? true : false;
+		return password_verify($value, $hash);
 	}
 }
 

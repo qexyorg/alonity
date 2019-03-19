@@ -14,6 +14,8 @@
 
 namespace Framework\Components\File\File;
 
+use Framework\Alonity\DI\DI;
+
 class Image {
 
 	private $minWidth = 0;
@@ -49,7 +51,7 @@ class Image {
 			throw new FileException('GD library not found');
 		}
 
-		$this->filename = dirname(dirname(dirname(__DIR__))).'/image.png';
+		$this->filename = DI::get('ALONITY')->getRoot().'/image.png';
 	}
 
 	/**

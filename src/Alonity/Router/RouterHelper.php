@@ -3,12 +3,12 @@
  * Router helper component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.0
+ * @version 1.1.1
  */
 
 namespace Framework\Alonity\Router;
@@ -407,11 +407,13 @@ class RouterHelper implements RouterHelperInterface {
 	/**
 	 * Получение массива параметров приложения
 	 *
+	 * @param $cache boolean
+	 *
 	 * @return array
 	 */
-	public static function getAppConfig(){
+	public static function getAppConfig($cache=true){
 
-		if(!is_null(self::$appConfig)){
+		if($cache && !is_null(self::$appConfig)){
 			return self::$appConfig;
 		}
 
@@ -427,7 +429,7 @@ class RouterHelper implements RouterHelperInterface {
 			return [];
 		}
 
-		self::$appConfig = (require_once($filename));
+		self::$appConfig = (require($filename));
 
 		return self::$appConfig;
 	}

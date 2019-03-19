@@ -14,6 +14,8 @@
 
 namespace Framework\Components\Permissions;
 
+use Framework\Alonity\DI\DI;
+
 class Move {
 	private $options = [];
 
@@ -26,7 +28,7 @@ class Move {
 			$options = [
 				'storage' => 'file',
 				'file' => [
-					'path' => '/Uploads/permissions/',
+					'path' => '/tmp/permissions/',
 				],
 			];
 		}
@@ -55,7 +57,7 @@ class Move {
 	public function getRootDir(){
 		if(!is_null($this->rootDir)){ return $this->rootDir; }
 
-		$this->rootDir = dirname(dirname(dirname(__DIR__)));
+		$this->rootDir = DI::get('ALONITY')->getRoot();
 
 		return $this->rootDir;
 	}

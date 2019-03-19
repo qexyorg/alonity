@@ -31,7 +31,7 @@ class Cache {
 			'timeout' => 3,
 		],
 		'file' => [
-			'path' => '/Uploads/cache',
+			'path' => '/tmp/cache',
 		],
 	];
 

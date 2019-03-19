@@ -3,12 +3,12 @@
  * Database component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2017, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database;
@@ -28,7 +28,7 @@ class Database {
 		'mysqli' => [
 			'host' => '127.0.0.1',
 			'port' => 3306,
-			'charset' => 'utf8',
+			'charset' => 'utf8mb4',
 			'timeout' => 3,
 			'database' => 'database',
 			'user' => 'root',
@@ -39,7 +39,7 @@ class Database {
 		'mysql' => [
 			'host' => '127.0.0.1',
 			'port' => 3306,
-			'charset' => 'utf8',
+			'charset' => 'utf8mb4',
 			'timeout' => 3,
 			'database' => 'database',
 			'user' => 'root',
@@ -188,7 +188,7 @@ class Database {
 	 *
 	 * @return object
 	*/
-	private static function getEngine(){
+	public static function getEngine(){
 		if(!isset(self::$objects[self::$options['engine']])){
 			try {
 				self::connect();
@@ -270,6 +270,65 @@ class Database {
 		return self::getEngine()->query($sql);
 	}
 
+	public static function import($filename, $predrop=false){
+		$read = file($filename);
+
+		if(!$read){
+			throw new DatabaseException("Can't read file {$filename}");
+		}
+
+		$result = true;
+
+		$query = "";
+
+		foreach($read as $line){
+
+			$line = trim($line);
+
+			$fs1 = mb_substr($line, 0, 1, 'UTF-8');
+			$fs2 = mb_substr($line, 0, 2, 'UTF-8');
+			$ls2 = mb_substr($line, -2, null, 'UTF-8');
+			$ls3 = mb_substr($line, -3, null, 'UTF-8');
+			$ls1 = mb_substr($line, -1, null, 'UTF-8');
+
+			if($fs1=='#' || $fs2=='--' || $line=='' || $fs2=='/*' || $ls2=='*/' || $ls3=='*/;'){
+				continue;
+			}
+
+			if($predrop && preg_match("/CREATE TABLE IF NOT EXISTS `([\w\-]+)`/i", $line, $match)){
+				if(isset($match[1])){
+					self::query("DROP TABLE IF EXISTS `{$match[1]}`;");
+				}
+			}
+
+			$query .= " {$line}";
+
+
+			if($ls1==';'){
+
+				$execute = self::query($query);
+
+				if(!$execute){
+					throw new DatabaseException("<p><b>".self::getQueryError()."</b></p><p>In SQL:<br>{$query}</p>");
+					break;
+				}
+
+				$query = "";
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Возвращает последнюю  ошибку запроса
+	 *
+	 * @return string
+	*/
+	public static function getQueryError(){
+		return self::getEngine()->getError();
+	}
+
 	/**
 	 * Экранирует спецсимволы в запросе
 	 *
@@ -281,6 +340,13 @@ class Database {
 		return self::getEngine()->safeSQL($string);
 	}
 
+	/**
+	 * Экранирует передаваемые в IN параметры
+	 *
+	 * @param $array array
+	 *
+	 * @return array
+	*/
 	public static function filterIn($array){
 		$array = array_unique($array);
 
