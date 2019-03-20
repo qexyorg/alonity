@@ -23,7 +23,7 @@ class Alonity implements AlonityInterface {
 	use Triggers;
 
 	// Версия ядра
-	const VERSION = 'rc-1.0.1';
+	const VERSION = 'rc-1.0.0a2';
 
 	// Версия приложения
 	private $AppVersion = null;

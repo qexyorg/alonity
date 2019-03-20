@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.1
+ * @version 1.1.2
  */
 
 namespace Framework\Alonity\Router;
@@ -50,6 +50,8 @@ class RouterHelper implements RouterHelperInterface {
 
 	public static function getRouteByURL($url, $method='GET'){
 
+		$url = urldecode($url);
+
 		$routes = self::getRoutes();
 
 		$current = false;
@@ -77,7 +79,7 @@ class RouterHelper implements RouterHelperInterface {
 
 			$pattern = self::filterPattern($value['pattern']);
 
-			if(!preg_match("/^$pattern\/?$/i", $url, $matches)){
+			if(!preg_match("/^$pattern\/?$/iu", $url, $matches)){
 
 				if(isset($value['aliases']) && !empty($value['aliases'])){
 
@@ -95,7 +97,7 @@ class RouterHelper implements RouterHelperInterface {
 
 						$alias = self::filterPattern($alias);
 
-						if(preg_match("/^$alias\/?$/i", $url, $matches)){
+						if(preg_match("/^$alias\/?$/iu", $url, $matches)){
 
 							if(!is_int($k)){ $params = $as; }
 
