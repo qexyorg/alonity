@@ -3,7 +3,7 @@
  * Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2017, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
@@ -23,7 +23,7 @@ class Alonity implements AlonityInterface {
 	use Triggers;
 
 	// Версия ядра
-	const VERSION = 'rc-1.0.0a2';
+	const VERSION = 'rc-1.0.0a3';
 
 	// Версия приложения
 	private $AppVersion = null;

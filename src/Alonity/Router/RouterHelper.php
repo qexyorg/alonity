@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 1.1.2
+ * @version 1.1.3
  */
 
 namespace Framework\Alonity\Router;
@@ -136,7 +136,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @static
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getCurrent(){
 		if(!is_null(self::$current)){
 			return self::$current;
@@ -163,7 +163,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * Возвращает массив параметров
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getParams(){
 		$current = self::getCurrent();
 
@@ -176,7 +176,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @param $name string
 	 *
 	 * @return string|null
-	*/
+	 */
 	public static function getParam($name){
 		$current = self::getCurrent();
 
@@ -245,7 +245,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @static
 	 *
 	 * @return string
-	*/
+	 */
 	public static function getDefaultControllerNamespace(){
 		$application = self::getApp();
 
@@ -260,7 +260,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @static
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getOptions(){
 		return self::$options;
 	}
@@ -273,7 +273,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @param $params array
 	 *
 	 * @return void
-	*/
+	 */
 	public static function setOptions($params){
 		self::$options = array_replace_recursive(self::$options, $params);
 	}
@@ -282,7 +282,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * Возвращает маршрут по умолчанию
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getDefaultRoute(){
 		if(isset(self::$options['default'])){
 			return self::$options['default'];
@@ -302,7 +302,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @static
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getRoutes(){
 		return self::$storage;
 	}
@@ -315,7 +315,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @param $name string
 	 *
 	 * @return array|null
-	*/
+	 */
 	public static function getRouteByName($name){
 		if(!isset(self::$storage[$name])){
 			return null;
@@ -333,7 +333,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @param $value array
 	 *
 	 * @return void
-	*/
+	 */
 	public static function setRoute($name, $value=[]){
 		self::$storage[$name] = $value;
 	}
@@ -359,7 +359,7 @@ class RouterHelper implements RouterHelperInterface {
 	 * @static
 	 *
 	 * @return array
-	*/
+	 */
 	public static function getDefaultMethods(){
 		if(!is_null(self::$defaultMethods)){
 			return self::$defaultMethods;
@@ -392,13 +392,19 @@ class RouterHelper implements RouterHelperInterface {
 	 *
 	 * @param $filename string
 	 *
+	 * @throws RouterException
+	 *
 	 * @return array
-	*/
+	 */
 	public static function getRoutesFile($filename){
 		$key = Key::make([__METHOD__, $filename]);
 
 		if(isset(self::$fileRoutes[$key])){
 			return self::$fileRoutes[$key];
+		}
+
+		if(!file_exists($filename)){
+			throw new RouterException("<p>File <b>{$filename}</b> not found</p>");
 		}
 
 		self::$fileRoutes[$key] = (require($filename));
