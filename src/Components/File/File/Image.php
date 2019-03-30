@@ -3,12 +3,12 @@
  * Image component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 3.0.0
+ * @version 3.0.1
  *
  */
 
@@ -30,7 +30,7 @@ class Image {
 
 	private $extensions = [];
 
-	private $scale = false;
+	private $scale = 1;
 
 	private $filename = null;
 
@@ -390,7 +390,7 @@ class Image {
 
 		$this->remakedir();
 
-		if($this->scale){
+		if($this->scale!==1){
 			if(!$this->filterScale()){
 				return false;
 			}
@@ -402,7 +402,7 @@ class Image {
 			}
 		}
 
-		if(!$this->scale && !$this->resizeWidth && !$this->resizeHeight){
+		if($this->scale!==1 && !$this->resizeWidth && !$this->resizeHeight){
 			if(!$this->generateImage()){
 				return false;
 			}
