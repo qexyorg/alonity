@@ -3,12 +3,12 @@
  * File Upload component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 3.0.0
+ * @version 3.0.1
  *
  */
 
@@ -36,6 +36,8 @@ class Upload {
 	private $maxGlobalSize = 0;
 
 	private $minGlobalSize = 0;
+
+	private $randomName = false;
 
 	private $path = '';
 
@@ -264,27 +266,13 @@ class Upload {
 	/**
 	 * Устанавливает новое имя для файла
 	 *
-	 * @param $min integer
-	 * @param $max integer
-	 *
 	 * @throws FileException
 	 *
 	 * @return $this
 	 */
-	public function setRandomName($min=16, $max=16){
+	public function setRandomName(){
 
-		$min = intval($min);
-		$max = intval($max);
-
-		if($min<=0){
-			throw new FileException('Random name param min must be more then 0');
-		}
-
-		if($min>$max){
-			throw new FileException('Random name param min can\'t be more then max');
-		}
-
-		$this->name = $this->random($min, $max);
+		$this->randomName = true;
 
 		return $this;
 	}
@@ -464,7 +452,15 @@ class Upload {
 				return false; break;
 			}
 
-			$newname = (is_null($this->name)) ? basename($v['name']) : $this->name.'.'.$pathinfo['extension'];
+			$newname = (is_null($this->name)) ? $this->name.'.'.$pathinfo['extension'] : $this->name.'.'.$pathinfo['extension'];
+
+			if($this->randomName){
+				$newname = $this->random(16, 24).'.'.$pathinfo['extension'];
+			}
+
+			if(!file_exists($this->path)){
+				@mkdir($this->path, 0777, true);
+			}
 
 			if(!move_uploaded_file($v['tmp_name'], $this->path.$newname)){
 				$this->error = error_get_last();
@@ -533,6 +529,11 @@ class Upload {
 			}
 
 			$newname = (is_null($this->name)) ? basename($path) : $this->name.'.'.$pathinfo['extension'];
+
+			if($this->randomName){
+				$newname = $this->random(16, 24).'.'.$pathinfo['extension'];
+			}
+
 
 			if(!@rename($path, $this->path.$newname)){
 				$this->error = 'error move file';
@@ -604,6 +605,11 @@ class Upload {
 			}
 
 			$newname = (is_null($this->name)) ? basename($path) : $this->name.'.'.$pathinfo['extension'];
+
+			if($this->randomName){
+				$newname = $this->random(16, 24).'.'.$pathinfo['extension'];
+			}
+
 
 			if(!@rename($path, $this->path.$newname)){
 				$this->error = 'error move file';
