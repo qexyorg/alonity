@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 3.0.1
+ * @version 3.0.2
  *
  */
 
@@ -558,7 +558,7 @@ class Upload {
 
 		foreach($this->files as $path){
 
-			if(function_exists('curl_init')){
+			if(!function_exists('curl_init')){
 				$file = @file_get_contents($path);
 			}else{
 				$file = @$this->getFromUrl($path);
