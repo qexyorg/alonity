@@ -3,12 +3,12 @@
  * Cache File component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.0.1
  */
 
 namespace Framework\Components\Cache;
@@ -348,6 +348,10 @@ class File {
 		$filepath = $this->getRoot().$path;
 
 		$num = 0;
+
+		if(!file_exists($filepath)){
+			return $num;
+		}
 
 		foreach(scandir($filepath) as $v){
 			if($v=='.' || $v=='..'){ continue; }
