@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.1.0
+ * @version 2.1.1
  */
 
 namespace Framework\Components\Database;
@@ -134,15 +134,23 @@ class Database {
 
 		$object = self::$objects[$engine];
 
-		self::$connections[$token] = $object->connect(
-			$options['host'],
-			$options['database'],
-			$options['user'],
-			$options['password'],
-			$options['port'],
-			$options['charset'],
-			$options['timeout']
-		);
+		try {
+			self::$connections[$token] = $object->connect(
+				$options['host'],
+				$options['database'],
+				$options['user'],
+				$options['password'],
+				$options['port'],
+				$options['charset'],
+				$options['timeout']
+			);
+		}catch(\Exception $e){
+			$error = $e->getMessage();
+		}
+
+		if(isset($error)){
+			throw new DatabaseException($error);
+		}
 
 		return self::$connections[$token];
 	}
