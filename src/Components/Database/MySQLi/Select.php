@@ -731,7 +731,7 @@ class Select implements SelectInterface {
 			return 0;
 		}
 
-		return intval($ar[0][0]);
+		return intval($ar[0]);
 	}
 }
 
