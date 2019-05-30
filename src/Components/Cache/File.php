@@ -8,7 +8,7 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.1
+ * @version 2.0.2
  */
 
 namespace Framework\Components\Cache;
@@ -358,11 +358,15 @@ class File {
 
 			$filename = "{$filepath}/{$v}";
 
-			if(!is_file($filename)){ continue; }
+			$num++;
+
+			if(!is_file($filename)){
+				$this->clear("{$path}/$v");
+				@rmdir($filename);
+				continue;
+			}
 
 			@unlink($filename);
-
-			$num++;
 		}
 
 		return $num;
