@@ -3,19 +3,20 @@
  * Database PostgreSQL Insert component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database\PostgreSQL;
 
 use Framework\Components\Database\DatabaseException;
+use Framework\Components\Database\InsertInterface;
 
-class Insert {
+class Insert implements InsertInterface {
 
 	private $sql = null;
 
@@ -216,8 +217,44 @@ class Insert {
 		return mb_substr($lines, 0, -1, 'UTF-8');
 	}
 
+	/**
+	 * Возвращает последнюю ошибку результата запроса
+	 *
+	 * @return string
+	 */
 	public function getError(){
 		return pg_last_error($this->obj);
+	}
+
+	/**
+	 * Возвращает строку SQL запроса
+	 *
+	 * @param $last_id string|null
+	 *
+	 * @return string
+	 */
+	public function getSQL($last_id=null){
+
+		if(!is_null($this->sql)){
+			return $this->sql;
+		}
+
+		$this->sql = $this->compileSQL($last_id);
+
+		return $this->sql;
+	}
+
+	private function compileSQL($last_id=null){
+
+		$into = $this->filterInto($this->into);
+
+		$columns = $this->filterColumns($this->columns);
+
+		$values = $this->filterValues($this->values);
+
+		$returning = (!is_null($last_id)) ? "RETURNING \"$last_id\"" : "";
+
+		return "INSERT INTO $into $columns VALUES $values $returning";
 	}
 
 	/**
@@ -229,19 +266,11 @@ class Insert {
 	 */
 	public function execute($last_id=null){
 
-		$into = $this->filterInto($this->into);
+		$sql = $this->getSQL();
 
-		$columns = $this->filterColumns($this->columns);
+		$this->result = pg_query($this->obj, $sql);
 
-		$values = $this->filterValues($this->values);
-
-		$returning = (!is_null($last_id)) ? "RETURNING \"$last_id\"" : "";
-
-		$this->sql = "INSERT INTO $into $columns VALUES $values $returning";
-
-		$this->result = pg_query($this->obj, $this->sql);
-
-		if(!$this->result){
+		if($this->result===false){
 			$this->insert_num = 0;
 			return false;
 		}
@@ -253,10 +282,20 @@ class Insert {
 		return true;
 	}
 
+	/**
+	 * Возвращает кол-во вставленных записей
+	 *
+	 * @return integer
+	 */
 	public function getInsertNum(){
 		return $this->insert_num;
 	}
 
+	/**
+	 * Возвращает последний вставленный ID
+	 *
+	 * @return integer
+	 */
 	public function getLastID(){
 		return $this->last_id;
 	}

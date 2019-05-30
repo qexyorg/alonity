@@ -8,15 +8,16 @@
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 namespace Framework\Components\Database\MySQLi;
 
 use Framework\Alonity\Keys\Key;
 use Framework\Components\Database\DatabaseException;
+use Framework\Components\Database\WrapperInterface;
 
-class Wrapper {
+class Wrapper implements WrapperInterface {
 
 	private $options = [];
 
@@ -241,6 +242,28 @@ class Wrapper {
 		}
 
 		return new Delete($obj);
+	}
+
+	/**
+	 * Возвращает экземпляр класса Framework\Components\Database\MySQLi\Transaction
+	 *
+	 * @throws DatabaseException
+	 *
+	 * @return Transaction
+	 */
+	public function transaction(){
+
+		$obj = $this->getObj();
+
+		if($obj===false){
+			throw new DatabaseException("Object is false");
+		}
+
+		if(!class_exists('Framework\Components\Database\MySQLi\Transaction')){
+			throw new DatabaseException("Class Framework\\Components\\Database\\MySQLi\\Transaction not found");
+		}
+
+		return new Transaction($obj);
 	}
 
 	/**

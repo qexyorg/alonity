@@ -3,19 +3,20 @@
  * Database PostgreSQL Delete component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database\PostgreSQL;
 
 use Framework\Components\Database\DatabaseException;
+use Framework\Components\Database\DeleteInterface;
 
-class Delete {
+class Delete implements DeleteInterface {
 
 	const WHERE_AND = 0x538;
 	const WHERE_OR = 0x539;
@@ -279,16 +280,26 @@ class Delete {
 		return "ORDER BY $result";
 	}
 
+	/**
+	 * Возвращает последнюю ошибку результата запроса
+	 *
+	 * @return string
+	 */
 	public function getError(){
 		return pg_last_error($this->obj);
 	}
 
+	/**
+	 * Возвращает количество удаленных записей
+	 *
+	 * @return integer
+	 */
 	public function getDeletedNum(){
 		return pg_affected_rows($this->result);
 	}
 
 	/**
-	 * Возвращает SQL запрос
+	 * Возвращает строку SQL запроса
 	 *
 	 * @return string
 	 */

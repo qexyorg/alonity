@@ -3,19 +3,20 @@
  * Database MySQL Select component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database\MySQL;
 
 use Framework\Components\Database\DatabaseException;
+use Framework\Components\Database\SelectInterface;
 
-class Select {
+class Select implements SelectInterface {
 
 	const WHERE_AND = 0x538;
 	const WHERE_OR = 0x539;
@@ -581,6 +582,11 @@ class Select {
 		return "ORDER BY $result";
 	}
 
+	/**
+	 * Возвращает строку сформированного запроса
+	 *
+	 * @return string
+	 */
 	public function getSQL(){
 
 		if(!is_null($this->sql)){
@@ -632,10 +638,20 @@ class Select {
 		return true;
 	}
 
+	/**
+	 * Возвращает последнюю произошедшую ошибку
+	 *
+	 * @return string
+	 */
 	public function getError(){
 		return mysql_error($this->obj);
 	}
 
+	/**
+	 * Возвращает числовой массив из выборки
+	 *
+	 * @return array
+	 */
 	public function getArray(){
 		$result = [];
 
@@ -650,6 +666,11 @@ class Select {
 		return $result;
 	}
 
+	/**
+	 * Возвращает ассоциотивный массив из выборки
+	 *
+	 * @return array
+	 */
 	public function getAssoc(){
 		$result = [];
 
@@ -664,12 +685,36 @@ class Select {
 		return $result;
 	}
 
+	/**
+	 * Возвращает кол-во выбранных записей
+	 *
+	 * @return integer
+	 */
 	public function getNum(){
 		if(is_null($this->result) || $this->result===false){
 			return 0;
 		}
 
 		return mysql_num_rows($this->result);
+	}
+
+	/**
+	 * Возвращает результат COUNT запроса
+	 *
+	 * @return integer
+	 */
+	public function getCount(){
+		if(is_null($this->result) || $this->result===false){
+			return 0;
+		}
+
+		$ar = mysql_fetch_row($this->result);
+
+		if(empty($ar)){
+			return 0;
+		}
+
+		return intval($ar[0]);
 	}
 }
 

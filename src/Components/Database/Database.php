@@ -105,7 +105,7 @@ class Database {
 	 * @throws DatabaseException
 	 *
 	 * @return Wrapper
-	*/
+	 */
 	public static function connect(){
 
 		$engine = self::$options['engine'];
@@ -162,7 +162,7 @@ class Database {
 	 * @param $key mixed
 	 *
 	 * @return boolean
-	*/
+	 */
 	public static function disconnect($engine=null, $key=0){
 
 		if(is_null($engine)){
@@ -186,7 +186,7 @@ class Database {
 	 * Возвращает последнюю ошибку базы данных
 	 *
 	 * @return string|null
-	*/
+	 */
 	public static function getLastError(){
 		return self::$last_error;
 	}
@@ -195,7 +195,7 @@ class Database {
 	 * Возвращает используемый движок базы данных
 	 *
 	 * @return object
-	*/
+	 */
 	public static function getEngine(){
 		if(!isset(self::$objects[self::$options['engine']])){
 			try {
@@ -212,7 +212,7 @@ class Database {
 	 * Возвращает кол-во запросов
 	 *
 	 * @return integer
-	*/
+	 */
 	public static function getQueriesNum(){
 		return self::$queries;
 	}
@@ -223,7 +223,7 @@ class Database {
 	 * @return \Framework\Components\Database\MySQLi\Select
 	 * @return \Framework\Components\Database\MySQL\Select
 	 * @return \Framework\Components\Database\PostgreSQL\Select
-	*/
+	 */
 	public static function select(){
 		self::$queries++;
 		return self::getEngine()->select();
@@ -263,6 +263,18 @@ class Database {
 	public static function delete(){
 		self::$queries++;
 		return self::getEngine()->delete();
+	}
+
+	/**
+	 * Создает операцию транзакций
+	 *
+	 * @return \Framework\Components\Database\MySQLi\Transaction
+	 * @return \Framework\Components\Database\MySQL\Transaction
+	 * @return \Framework\Components\Database\PostgreSQL\Transaction
+	 */
+	public static function transaction(){
+		self::$queries++;
+		return self::getEngine()->transaction();
 	}
 
 	/**
@@ -332,7 +344,7 @@ class Database {
 	 * Возвращает последнюю  ошибку запроса
 	 *
 	 * @return string
-	*/
+	 */
 	public static function getQueryError(){
 		return self::getEngine()->getError();
 	}
@@ -354,7 +366,7 @@ class Database {
 	 * @param $array array
 	 *
 	 * @return array
-	*/
+	 */
 	public static function filterIn($array){
 		$array = array_unique($array);
 

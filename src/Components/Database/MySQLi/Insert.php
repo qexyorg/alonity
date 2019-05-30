@@ -3,19 +3,20 @@
  * Database MySQLi Insert component of Alonity Framework
  *
  * @author Qexy <admin@qexy.org>
- * @copyright Copyright (c) 2018, Qexy
+ * @copyright Copyright (c) 2019, Qexy
  * @link http://qexy.org
  *
  * @license https://www.gnu.org/licenses/gpl-3.0.html
  *
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Framework\Components\Database\MySQLi;
 
 use Framework\Components\Database\DatabaseException;
+use Framework\Components\Database\InsertInterface;
 
-class Insert {
+class Insert implements InsertInterface {
 
 	private $sql = null;
 
@@ -219,11 +220,23 @@ class Insert {
 		return mb_substr($lines, 0, -1, 'UTF-8');
 	}
 
+	/**
+	 * Возвращает последнюю ошибку результата запроса
+	 *
+	 * @return string
+	 */
 	public function getError(){
 		return $this->obj->error;
 	}
 
-	public function getSQL(){
+	/**
+	 * Возвращает строку SQL запроса
+	 *
+	 * @param $last_id string|null
+	 *
+	 * @return string
+	 */
+	public function getSQL($last_id=null){
 
 		if(!is_null($this->sql)){
 			return $this->sql;
@@ -248,9 +261,11 @@ class Insert {
 	/**
 	 * Объединяет все элементы и создает запрос
 	 *
+	 * @param $last_id null
+	 *
 	 * @return boolean
 	 */
-	public function execute(){
+	public function execute($last_id=null){
 
 		$sql = $this->getSQL();
 
@@ -264,10 +279,20 @@ class Insert {
 		return true;
 	}
 
+	/**
+	 * Возвращает кол-во вставленных записей
+	 *
+	 * @return integer
+	 */
 	public function getInsertNum(){
 		return $this->insert_num;
 	}
 
+	/**
+	 * Возвращает последний вставленный ID
+	 *
+	 * @return integer
+	 */
 	public function getLastID(){
 		return $this->obj->insert_id;
 	}
