@@ -1,3 +1,6 @@
+!!! DEPRECATED !!!
+Use https://github.com/alonity/
+
 # Alonity
 Alonity - Simple php micro framework
 
